@@ -390,11 +390,11 @@ function PricingPage({ setView }) {
                             padding: '40px 32px',
                         }}>
                             <h3 style={{fontSize: '24px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '24px'}}>
-                                CLUB
+                                COACH
                             </h3>
                             <div style={{marginBottom: '32px'}}>
                                 <div style={{fontSize: '48px', fontWeight: '900', marginBottom: '8px'}}>
-                                    €29
+                                    €97
                                 </div>
                                 <p style={{color: 'var(--gray-mid)', fontWeight: '600'}}>
                                     /month
@@ -451,11 +451,11 @@ function PricingPage({ setView }) {
                                 MOST POPULAR
                             </div>
                             <h3 style={{fontSize: '24px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '24px'}}>
-                                COUNTY
+                                PREMIUM
                             </h3>
                             <div style={{marginBottom: '32px'}}>
                                 <div style={{fontSize: '48px', fontWeight: '900', marginBottom: '8px'}}>
-                                    €99
+                                    €147
                                 </div>
                                 <p style={{color: 'var(--gray-mid)', fontWeight: '600'}}>
                                     /month
@@ -495,14 +495,14 @@ function PricingPage({ setView }) {
                             padding: '40px 32px',
                         }}>
                             <h3 style={{fontSize: '24px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '24px'}}>
-                                ELITE
+                                ENTERPRISE
                             </h3>
                             <div style={{marginBottom: '32px'}}>
                                 <div style={{fontSize: '48px', fontWeight: '900', marginBottom: '8px'}}>
-                                    Custom
+                                    €497
                                 </div>
                                 <p style={{color: 'var(--gray-mid)', fontWeight: '600'}}>
-                                    Contact us
+                                    /month
                                 </p>
                             </div>
                             <ul style={{listStyle: 'none', padding: 0, marginBottom: '32px'}}>
