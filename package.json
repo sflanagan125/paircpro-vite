@@ -1,6 +1,5 @@
 {
   "name": "paircpro",
-  "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -14,9 +13,7 @@
     "@supabase/supabase-js": "^2.39.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.43",
-    "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^5.0.8"
+    "vite": "^5.0.0"
   }
 }
