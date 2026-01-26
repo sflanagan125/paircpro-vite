@@ -910,16 +910,66 @@ function AuthPage({ setView, setUser }) {
 
 // Dashboard Component
 function Dashboard({ user, setView, setUser }) {
+    const [activeTab, setActiveTab] = useState('upload');
+    const [videoFile, setVideoFile] = useState(null);
+    const [videoUrl, setVideoUrl] = useState('');
+    const [uploading, setUploading] = useState(false);
+    const [matches, setMatches] = useState([]);
+    const [currentMatch, setCurrentMatch] = useState(null);
+
     const handleSignOut = async () => {
         await supabase.auth.signOut();
         setUser(null);
         setView('landing');
     };
 
+    const handleVideoUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        setUploading(true);
+        try {
+            // Upload to Supabase storage
+            const fileName = `${user.id}/${Date.now()}-${file.name}`;
+            const { data, error } = await supabase.storage
+                .from('videos')
+                .upload(fileName, file);
+
+            if (error) throw error;
+
+            // Get public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('videos')
+                .getPublicUrl(fileName);
+
+            setVideoUrl(publicUrl);
+            setVideoFile(file);
+            
+            // Save match record
+            const { data: matchData } = await supabase
+                .from('matches')
+                .insert([{
+                    user_id: user.id,
+                    video_url: publicUrl,
+                    title: file.name,
+                    created_at: new Date()
+                }])
+                .select()
+                .single();
+
+            setCurrentMatch(matchData);
+            setActiveTab('analysis');
+        } catch (error) {
+            alert('Upload failed: ' + error.message);
+        } finally {
+            setUploading(false);
+        }
+    };
+
     return (
-        <div style={{minHeight: '100vh', background: '#F5F5F5'}}>
+        <div style={{minHeight: '100vh', background: 'linear-gradient(135deg, #00833E 0%, #006030 100%)'}}>
             {/* Header */}
-            <header style={{background: 'var(--black)', color: 'white', borderBottom: '1px solid rgba(255,255,255,0.1)'}}>
+            <header style={{background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.1)'}}>
                 <div style={{maxWidth: '1400px', margin: '0 auto', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                     <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
                         <svg width="32" height="32" viewBox="0 0 32 32">
@@ -927,13 +977,13 @@ function Dashboard({ user, setView, setUser }) {
                             <circle cx="16" cy="16" r="8" fill="#00833E"/>
                             <path d="M12 16 L16 12 L20 16 L16 20 Z" fill="white"/>
                         </svg>
-                        <span style={{fontSize: '20px', fontWeight: '800', textTransform: 'uppercase'}}>PÁIRCPRO</span>
+                        <span style={{fontSize: '20px', fontWeight: '800', textTransform: 'uppercase', color: 'white'}}>PÁIRCPRO</span>
                     </div>
                     <button
                         onClick={handleSignOut}
                         style={{
                             background: 'transparent',
-                            border: '1px solid rgba(255,255,255,0.2)',
+                            border: '1px solid rgba(255,255,255,0.3)',
                             color: 'white',
                             padding: '8px 16px',
                             borderRadius: '8px',
@@ -941,7 +991,6 @@ function Dashboard({ user, setView, setUser }) {
                             fontSize: '14px',
                             fontWeight: '600',
                             textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
                             fontFamily: 'inherit'
                         }}
                     >
@@ -951,23 +1000,230 @@ function Dashboard({ user, setView, setUser }) {
             </header>
 
             {/* Main Content */}
-            <div style={{maxWidth: '1400px', margin: '0 auto', padding: '48px 24px'}}>
-                <h1 className="display-lg uppercase mb-large">DASHBOARD</h1>
-                
-                <div style={{
-                    background: 'white',
-                    borderRadius: '12px',
-                    padding: '48px',
-                    textAlign: 'center',
-                    border: '1px solid #E5E5E5'
-                }}>
-                    <h2 className="heading-xl mb-medium">WELCOME TO PÁIRCPRO</h2>
-                    <p className="body-lg mb-xlarge" style={{color: 'var(--gray-mid)', maxWidth: '600px', margin: '0 auto 48px'}}>
-                        Your GAA video analysis platform is ready. Start by uploading your first match footage.
-                    </p>
-                    <p style={{fontSize: '14px', color: 'var(--gray-mid)'}}>
-                        Logged in as: {user.email}
-                    </p>
+            <div style={{display: 'flex', height: 'calc(100vh - 65px)'}}>
+                {/* Sidebar */}
+                <div style={{width: '240px', background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,255,255,0.1)', padding: '24px 16px'}}>
+                    <div style={{marginBottom: '32px'}}>
+                        <div style={{fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px'}}>Analysis</div>
+                        <button
+                            onClick={() => setActiveTab('upload')}
+                            style={{
+                                width: '100%',
+                                background: activeTab === 'upload' ? 'rgba(255,255,255,0.15)' : 'transparent',
+                                border: 'none',
+                                color: 'white',
+                                padding: '12px 16px',
+                                borderRadius: '8px',
+                                textAlign: 'left',
+                                cursor: 'pointer',
+                                fontWeight: '600',
+                                fontSize: '14px',
+                                marginBottom: '8px',
+                                fontFamily: 'inherit'
+                            }}
+                        >
+                            🎥 Video Upload
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('matches')}
+                            style={{
+                                width: '100%',
+                                background: activeTab === 'matches' ? 'rgba(255,255,255,0.15)' : 'transparent',
+                                border: 'none',
+                                color: 'white',
+                                padding: '12px 16px',
+                                borderRadius: '8px',
+                                textAlign: 'left',
+                                cursor: 'pointer',
+                                fontWeight: '600',
+                                fontSize: '14px',
+                                marginBottom: '8px',
+                                fontFamily: 'inherit'
+                            }}
+                        >
+                            📁 My Matches
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('analysis')}
+                            style={{
+                                width: '100%',
+                                background: activeTab === 'analysis' ? 'rgba(255,255,255,0.15)' : 'transparent',
+                                border: 'none',
+                                color: 'white',
+                                padding: '12px 16px',
+                                borderRadius: '8px',
+                                textAlign: 'left',
+                                cursor: 'pointer',
+                                fontWeight: '600',
+                                fontSize: '14px',
+                                fontFamily: 'inherit'
+                            }}
+                        >
+                            ⚡ Analysis
+                        </button>
+                    </div>
+                </div>
+
+                {/* Main Area */}
+                <div style={{flex: 1, padding: '32px', overflowY: 'auto'}}>
+                    {activeTab === 'upload' && (
+                        <div style={{maxWidth: '800px', margin: '0 auto'}}>
+                            <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '16px', textTransform: 'uppercase'}}>Upload Match Video</h1>
+                            <p style={{color: 'rgba(255,255,255,0.8)', fontSize: '18px', marginBottom: '48px'}}>
+                                Upload GAA match footage to begin your analysis
+                            </p>
+                            
+                            <div style={{
+                                background: 'rgba(255,255,255,0.1)',
+                                backdropFilter: 'blur(20px)',
+                                border: '2px dashed rgba(255,255,255,0.3)',
+                                borderRadius: '16px',
+                                padding: '64px 32px',
+                                textAlign: 'center'
+                            }}>
+                                <input
+                                    type="file"
+                                    accept="video/*"
+                                    onChange={handleVideoUpload}
+                                    disabled={uploading}
+                                    style={{display: 'none'}}
+                                    id="video-upload"
+                                />
+                                <label
+                                    htmlFor="video-upload"
+                                    style={{
+                                        cursor: uploading ? 'not-allowed' : 'pointer',
+                                        display: 'block'
+                                    }}
+                                >
+                                    <div style={{fontSize: '64px', marginBottom: '24px'}}>🎥</div>
+                                    <h3 style={{color: 'white', fontSize: '24px', fontWeight: '700', marginBottom: '12px'}}>
+                                        {uploading ? 'Uploading...' : 'Click to Upload Video'}
+                                    </h3>
+                                    <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '16px'}}>
+                                        MP4, MOV, AVI • Max 2GB
+                                    </p>
+                                </label>
+                            </div>
+
+                            {videoFile && (
+                                <div style={{marginTop: '32px', padding: '24px', background: 'rgba(255,255,255,0.1)', borderRadius: '12px'}}>
+                                    <p style={{color: 'white', fontWeight: '600', marginBottom: '8px'}}>✓ Uploaded: {videoFile.name}</p>
+                                    <button
+                                        onClick={() => setActiveTab('analysis')}
+                                        className="btn-primary"
+                                        style={{marginTop: '16px'}}
+                                    >
+                                        START ANALYSIS
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {activeTab === 'matches' && (
+                        <div>
+                            <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '32px', textTransform: 'uppercase'}}>My Matches</h1>
+                            <div style={{
+                                background: 'rgba(255,255,255,0.1)',
+                                backdropFilter: 'blur(20px)',
+                                borderRadius: '12px',
+                                padding: '48px',
+                                textAlign: 'center'
+                            }}>
+                                <p style={{color: 'rgba(255,255,255,0.8)', fontSize: '18px'}}>
+                                    No matches yet. Upload your first video to get started!
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'analysis' && (
+                        <div>
+                            <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '32px', textTransform: 'uppercase'}}>Video Analysis</h1>
+                            
+                            {videoUrl ? (
+                                <div style={{
+                                    background: 'rgba(0,0,0,0.3)',
+                                    backdropFilter: 'blur(20px)',
+                                    borderRadius: '16px',
+                                    padding: '24px',
+                                    border: '1px solid rgba(255,255,255,0.1)'
+                                }}>
+                                    <video
+                                        controls
+                                        style={{width: '100%', borderRadius: '12px', marginBottom: '24px'}}
+                                        src={videoUrl}
+                                    />
+                                    
+                                    {/* Analysis Tools */}
+                                    <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '24px'}}>
+                                        <div style={{
+                                            background: 'rgba(255,255,255,0.05)',
+                                            padding: '20px',
+                                            borderRadius: '12px',
+                                            border: '1px solid rgba(255,255,255,0.1)'
+                                        }}>
+                                            <div style={{fontSize: '32px', marginBottom: '8px'}}>⚽</div>
+                                            <h3 style={{color: 'white', fontSize: '16px', fontWeight: '700', marginBottom: '4px'}}>Tag Events</h3>
+                                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '13px'}}>Mark goals, points, fouls</p>
+                                        </div>
+                                        
+                                        <div style={{
+                                            background: 'rgba(255,255,255,0.05)',
+                                            padding: '20px',
+                                            borderRadius: '12px',
+                                            border: '1px solid rgba(255,255,255,0.1)'
+                                        }}>
+                                            <div style={{fontSize: '32px', marginBottom: '8px'}}>📊</div>
+                                            <h3 style={{color: 'white', fontSize: '16px', fontWeight: '700', marginBottom: '4px'}}>Statistics</h3>
+                                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '13px'}}>Track possessions, shots</p>
+                                        </div>
+                                        
+                                        <div style={{
+                                            background: 'rgba(255,255,255,0.05)',
+                                            padding: '20px',
+                                            borderRadius: '12px',
+                                            border: '1px solid rgba(255,255,255,0.1)'
+                                        }}>
+                                            <div style={{fontSize: '32px', marginBottom: '8px'}}>🔥</div>
+                                            <h3 style={{color: 'white', fontSize: '16px', fontWeight: '700', marginBottom: '4px'}}>Heat Maps</h3>
+                                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '13px'}}>Visualize positioning</p>
+                                        </div>
+                                        
+                                        <div style={{
+                                            background: 'rgba(255,255,255,0.05)',
+                                            padding: '20px',
+                                            borderRadius: '12px',
+                                            border: '1px solid rgba(255,255,255,0.1)'
+                                        }}>
+                                            <div style={{fontSize: '32px', marginBottom: '8px'}}>✂️</div>
+                                            <h3 style={{color: 'white', fontSize: '16px', fontWeight: '700', marginBottom: '4px'}}>Create Clips</h3>
+                                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '13px'}}>Export highlights</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{
+                                    background: 'rgba(255,255,255,0.1)',
+                                    backdropFilter: 'blur(20px)',
+                                    borderRadius: '12px',
+                                    padding: '48px',
+                                    textAlign: 'center'
+                                }}>
+                                    <p style={{color: 'rgba(255,255,255,0.8)', fontSize: '18px', marginBottom: '24px'}}>
+                                        Upload a video to start your analysis
+                                    </p>
+                                    <button
+                                        onClick={() => setActiveTab('upload')}
+                                        className="btn-primary"
+                                    >
+                                        UPLOAD VIDEO
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
