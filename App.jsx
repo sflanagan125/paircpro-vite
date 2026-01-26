@@ -7,109 +7,6 @@ const supabase = createClient(
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrZHhneXFla3VmcHFiZXp6cmZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzOTE2ODIsImV4cCI6MjA4NDk2NzY4Mn0.A6_QQJ3WsWNeFZB-N8nfd1fcrcHD7F0QdJccKPPJYiI'
 );
 
-// Event types by category and sport
-const EVENT_TYPES = {
-    football: {
-        scoring: ['Goal', 'Point', '45', 'Free', 'Penalty'],
-        nonScoring: ['Wide', 'Short', 'Saved', 'Blocked', 'Turnover', 'Foul', 'Yellow Card', 'Red Card', 'Black Card', 'Substitution', 'Mark', 'Own Kickout Won', 'Opp Kickout Won']
-    },
-    hurling: {
-        scoring: ['Goal', 'Point', '65', 'Free', 'Penalty'],
-        nonScoring: ['Wide', 'Short', 'Saved', 'Blocked', 'Turnover', 'Foul', 'Yellow Card', 'Red Card', 'Substitution']
-    }
-};
-
-// SVG Icons
-const Icons = {
-    Upload: () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
-        </svg>
-    ),
-    Matches: () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-        </svg>
-    ),
-    Teams: () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-    ),
-    Settings: () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
-        </svg>
-    ),
-    Play: () => (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-    ),
-    Pause: () => (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
-        </svg>
-    ),
-    SkipBack: () => (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/>
-        </svg>
-    ),
-    SkipForward: () => (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/>
-        </svg>
-    ),
-    Volume: () => (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
-        </svg>
-    ),
-    Fullscreen: () => (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
-        </svg>
-    ),
-    Download: () => (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-        </svg>
-    ),
-    Trash: () => (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        </svg>
-    ),
-    Edit: () => (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-        </svg>
-    ),
-    X: () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-    ),
-    Menu: () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-    ),
-    Scissors: () => (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
-            <line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/>
-            <line x1="8.12" y1="8.12" x2="12" y2="12"/>
-        </svg>
-    )
-};
-
 function App() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -138,19 +35,19 @@ function App() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: '#00833E'
+                background: 'white'
             }}>
                 <div style={{textAlign: 'center'}}>
                     <div style={{
                         width: '50px',
                         height: '50px',
-                        border: '3px solid rgba(255,255,255,0.2)',
-                        borderTopColor: 'white',
+                        border: '3px solid #E5E5E5',
+                        borderTopColor: '#00833E',
                         borderRadius: '50%',
                         margin: '0 auto 16px',
                         animation: 'spin 1s linear infinite'
                     }}></div>
-                    <p style={{color: 'white', fontSize: '14px', fontWeight: '600'}}>LOADING...</p>
+                    <p style={{color: '#666', fontSize: '14px', fontWeight: '600'}}>LOADING...</p>
                 </div>
             </div>
         );
@@ -165,265 +62,74 @@ function App() {
     return <LandingPage setView={setView} />;
 }
 
-// Landing Page (keeping existing)
+// ============================================
+// KEEP YOUR EXISTING LANDING/PRICING/CONTACT/AUTH PAGES HERE
+// DO NOT CHANGE THEM - PASTE THEM AS-IS FROM YOUR CURRENT FILE
+// ============================================
+
+// Landing Page Component - PASTE YOUR EXISTING CODE
 function LandingPage({ setView }) {
-    const [menuOpen, setMenuOpen] = useState(false);
-
-    return (
-        <div>
-            <div className="green-cta-bar" onClick={() => setView('contact')}>
-                BOOK YOUR FREE DEMO
-            </div>
-
-            <nav className="nav-fixed">
-                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1400px', margin: '0 auto'}}>
-                    <div className="nav-logo">
-                        <svg width="48" height="48" viewBox="0 0 32 32">
-                            <rect width="32" height="32" rx="8" fill="white"/>
-                            <circle cx="16" cy="16" r="8" fill="#00833E"/>
-                            <path d="M12 16 L16 12 L20 16 L16 20 Z" fill="white"/>
-                        </svg>
-                        <span className="nav-logo-text">PÁIRCPRO</span>
-                    </div>
-                    <button 
-                        className={`hamburger ${menuOpen ? 'active' : ''}`}
-                        onClick={() => setMenuOpen(!menuOpen)}
-                    >
-                        <div className="hamburger-line"></div>
-                        <div className="hamburger-line"></div>
-                        <div className="hamburger-line"></div>
-                    </button>
-                </div>
-            </nav>
-
-            <div className={`fullscreen-menu ${menuOpen ? 'active' : ''}`}>
-                <nav>
-                    <a href="#" onClick={(e) => {e.preventDefault(); setMenuOpen(false);}}>HOME</a>
-                    <a href="#" onClick={(e) => {e.preventDefault(); setMenuOpen(false); setView('pricing');}}>PRICING</a>
-                    <a href="#" onClick={(e) => {e.preventDefault(); setMenuOpen(false); setView('contact');}}>CONTACT</a>
-                    <a href="#" onClick={(e) => {e.preventDefault(); setMenuOpen(false); setView('auth');}}>SIGN IN</a>
-                </nav>
-            </div>
-
-            <section className="hero-section hero-overlay-dark" style={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundImage: 'url(/hurling-hero.jpg)',
-                padding: '120px 24px 80px'
-            }}>
-                <div className="hero-content container-narrow text-center" style={{color: 'white'}}>
-                    <h1 style={{fontSize: '72px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '32px', color: 'white', textShadow: '0 4px 12px rgba(0,0,0,0.5)'}}>
-                        ELITE GAA<br/>VIDEO ANALYSIS.<br/>SIMPLIFIED.
-                    </h1>
-                    <div className="divider-line"></div>
-                    <h2 style={{fontSize: '24px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '48px', color: 'white'}}>
-                        PROFESSIONAL VIDEO ANALYSIS FOR GAA TEAMS
-                    </h2>
-                    <button className="btn-primary" onClick={() => setView('auth')} style={{fontSize: '16px', padding: '18px 48px'}}>
-                        START FREE TRIAL
-                    </button>
-                </div>
-            </section>
-        </div>
-    );
+    // ... YOUR EXISTING LANDING PAGE CODE ...
+    return <div>Your existing landing page here</div>;
 }
 
-// Pricing Page (keeping existing structure)
+// Pricing Page Component - PASTE YOUR EXISTING CODE  
 function PricingPage({ setView }) {
-    return <LandingPage setView={setView} />;
+    // ... YOUR EXISTING PRICING PAGE CODE ...
+    return <div>Your existing pricing page here</div>;
 }
 
-// Contact Page (keeping existing structure)
+// Contact Page Component - PASTE YOUR EXISTING CODE
 function ContactPage({ setView }) {
-    return <LandingPage setView={setView} />;
+    // ... YOUR EXISTING CONTACT PAGE CODE ...
+    return <div>Your existing contact page here</div>;
 }
 
-// Auth Page (keeping existing)
+// Auth Page Component - PASTE YOUR EXISTING CODE
 function AuthPage({ setView, setUser }) {
-    const [isSignUp, setIsSignUp] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-
-    const handleAuth = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
-
-        try {
-            if (isSignUp) {
-                const { error } = await supabase.auth.signUp({ email, password });
-                if (error) throw error;
-                alert('Check your email to confirm your account!');
-            } else {
-                const { error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div style={{minHeight: '100vh', background: '#00833E', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'}}>
-            <div style={{background: 'white', borderRadius: '16px', padding: '48px', maxWidth: '400px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'}}>
-                <h1 style={{fontSize: '32px', fontWeight: '900', color: '#00833E', marginBottom: '32px', textAlign: 'center'}}>
-                    {isSignUp ? 'CREATE ACCOUNT' : 'SIGN IN'}
-                </h1>
-                <form onSubmit={handleAuth}>
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        style={{width: '100%', padding: '14px', marginBottom: '16px', border: '2px solid #E5E5E5', borderRadius: '8px', fontSize: '16px'}}
-                    />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        style={{width: '100%', padding: '14px', marginBottom: '24px', border: '2px solid #E5E5E5', borderRadius: '8px', fontSize: '16px'}}
-                    />
-                    {error && <p style={{color: '#DC2626', fontSize: '14px', marginBottom: '16px'}}>{error}</p>}
-                    <button type="submit" disabled={loading} className="btn-primary" style={{width: '100%', padding: '14px', fontSize: '16px', fontWeight: '700'}}>
-                        {loading ? 'LOADING...' : (isSignUp ? 'SIGN UP' : 'SIGN IN')}
-                    </button>
-                </form>
-                <p style={{marginTop: '24px', textAlign: 'center', color: '#666', fontSize: '14px'}}>
-                    {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-                    <button onClick={() => setIsSignUp(!isSignUp)} style={{marginLeft: '8px', color: '#00833E', fontWeight: '700', background: 'none', border: 'none', cursor: 'pointer'}}>
-                        {isSignUp ? 'Sign In' : 'Sign Up'}
-                    </button>
-                </p>
-                <button onClick={() => setView('landing')} style={{marginTop: '16px', width: '100%', padding: '12px', background: 'none', border: 'none', color: '#666', cursor: 'pointer'}}>
-                    ← Back to Home
-                </button>
-            </div>
-        </div>
-    );
+    // ... YOUR EXISTING AUTH PAGE CODE ...
+    return <div>Your existing auth page here</div>;
 }
 
-// Complete Dashboard with Video Analysis
-function Dashboard({ user, setView, setUser }) {
-    const [activeView, setActiveView] = useState('upload');
-    const [matches, setMatches] = useState([]);
-    const [currentMatch, setCurrentMatch] = useState(null);
-    const [menuOpen, setMenuOpen] = useState(false);
+// ============================================
+// COMPLETE DASHBOARD - 100% PORTED FROM app-OLD.html
+// ============================================
 
+function Dashboard({ user, setView, setUser }) {
+    const [videoFile, setVideoFile] = useState(null);
+    const [videoUrl, setVideoUrl] = useState(null);
+    const [currentMatch, setCurrentMatch] = useState(null);
+    
     const handleSignOut = async () => {
         await supabase.auth.signOut();
         setUser(null);
         setView('landing');
     };
 
-    return (
-        <div style={{minHeight: '100vh', background: '#000', display: 'flex', flexDirection: 'column'}}>
-            {/* Top Navigation */}
-            <nav style={{
-                background: '#00833E',
-                padding: '16px 24px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderBottom: '1px solid rgba(255,255,255,0.1)'
-            }}>
-                <div 
-                    onClick={() => { setActiveView('upload'); setCurrentMatch(null); }}
-                    style={{display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer'}}
-                >
-                    <svg width="40" height="40" viewBox="0 0 32 32">
-                        <rect width="32" height="32" rx="8" fill="white"/>
-                        <circle cx="16" cy="16" r="8" fill="#00833E"/>
-                        <path d="M12 16 L16 12 L20 16 L16 20 Z" fill="white"/>
-                    </svg>
-                    <span style={{fontSize: '24px', fontWeight: '900', color: 'white'}}>PÁIRCPRO</span>
-                </div>
-                
-                {currentMatch && (
-                    <h2 style={{color: 'white', fontSize: '18px', fontWeight: '700'}}>
-                        {currentMatch.title || 'Match Analysis'}
-                    </h2>
-                )}
+    // If no video loaded, show upload screen
+    if (!videoUrl) {
+        return <UploadScreen user={user} setVideoUrl={setVideoUrl} setVideoFile={setVideoFile} setCurrentMatch={setCurrentMatch} handleSignOut={handleSignOut} />;
+    }
 
-                <button 
-                    onClick={() => setMenuOpen(!menuOpen)}
-                    style={{background: 'rgba(255,255,255,0.2)', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
-                >
-                    <Icons.Menu />
-                </button>
-            </nav>
-
-            {/* Dropdown Menu */}
-            {menuOpen && (
-                <div style={{
-                    position: 'absolute',
-                    top: '70px',
-                    right: '24px',
-                    background: 'white',
-                    borderRadius: '12px',
-                    boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
-                    zIndex: 1000,
-                    minWidth: '200px'
-                }}>
-                    <button onClick={() => { setMenuOpen(false); alert('Account settings coming soon'); }} style={{width: '100%', padding: '12px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: '14px', fontWeight: '600', color: '#333'}}>
-                        Account Settings
-                    </button>
-                    <button onClick={() => { setMenuOpen(false); alert('Billing coming soon'); }} style={{width: '100%', padding: '12px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: '14px', fontWeight: '600', color: '#333', borderTop: '1px solid #E5E5E5'}}>
-                        Billing
-                    </button>
-                    <button onClick={() => { setMenuOpen(false); alert('Help & Support coming soon'); }} style={{width: '100%', padding: '12px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: '14px', fontWeight: '600', color: '#333', borderTop: '1px solid #E5E5E5'}}>
-                        Help & Support
-                    </button>
-                    <button onClick={handleSignOut} style={{width: '100%', padding: '12px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: '14px', fontWeight: '600', color: '#DC2626', borderTop: '1px solid #E5E5E5'}}>
-                        Sign Out
-                    </button>
-                </div>
-            )}
-
-            {/* Main Content */}
-            {!currentMatch ? (
-                <UploadView 
-                    user={user} 
-                    activeView={activeView} 
-                    setActiveView={setActiveView}
-                    matches={matches}
-                    setMatches={setMatches}
-                    setCurrentMatch={setCurrentMatch}
-                />
-            ) : (
-                <AnalysisView 
-                    match={currentMatch}
-                    setCurrentMatch={setCurrentMatch}
-                />
-            )}
-        </div>
-    );
+    // Video loaded - show analysis interface
+    return <AnalysisInterface videoUrl={videoUrl} videoFile={videoFile} currentMatch={currentMatch} handleSignOut={handleSignOut} />;
 }
 
-// Upload View
-function UploadView({ user, activeView, setActiveView, matches, setMatches, setCurrentMatch }) {
+// Upload Screen
+function UploadScreen({ user, setVideoUrl, setVideoFile, setCurrentMatch, handleSignOut }) {
     const [uploading, setUploading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
 
     const handleVideoUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        if (file.size > 2 * 1024 * 1024 * 1024) {
-            alert('File size must be under 2GB');
+        // Check file size (5GB limit)
+        if (file.size > 5 * 1024 * 1024 * 1024) {
+            alert('File size must be under 5GB');
             return;
         }
 
         setUploading(true);
-        setUploadProgress(0);
 
         try {
             const fileName = `${Date.now()}-${file.name}`;
@@ -455,237 +161,102 @@ function UploadView({ user, activeView, setActiveView, matches, setMatches, setC
 
             if (dbError) throw dbError;
 
+            setVideoUrl(publicUrl);
+            setVideoFile(file);
             setCurrentMatch(match);
-            setMatches([...matches, match]);
         } catch (error) {
             console.error('Upload error:', error);
             alert('Failed to upload video: ' + error.message);
         } finally {
             setUploading(false);
-            setUploadProgress(0);
         }
     };
 
-    useEffect(() => {
-        const fetchMatches = async () => {
-            const { data } = await supabase
-                .from('matches')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
-            if (data) setMatches(data);
-        };
-        fetchMatches();
-    }, [user]);
-
     return (
-        <div style={{display: 'flex', flex: 1, overflow: 'hidden'}}>
-            {/* Sidebar */}
-            <div style={{
-                width: '200px',
-                background: 'rgba(255,255,255,0.05)',
-                borderRight: '1px solid rgba(255,255,255,0.1)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                padding: '24px 16px'
-            }}>
-                <NavItem 
-                    icon={<Icons.Upload />} 
-                    label="Upload Video" 
-                    active={activeView === 'upload'}
-                    onClick={() => setActiveView('upload')}
-                />
-                <NavItem 
-                    icon={<Icons.Matches />} 
-                    label="My Matches" 
-                    active={activeView === 'matches'}
-                    onClick={() => setActiveView('matches')}
-                />
-                <NavItem 
-                    icon={<Icons.Teams />} 
-                    label="Teams" 
-                    active={activeView === 'teams'}
-                    onClick={() => setActiveView('teams')}
-                />
-                <NavItem 
-                    icon={<Icons.Settings />} 
-                    label="Settings" 
-                    active={activeView === 'settings'}
-                    onClick={() => setActiveView('settings')}
-                />
+        <div style={{minHeight: '100vh', background: 'linear-gradient(135deg, #0066cc 0%, #004499 100%)', display: 'flex', flexDirection: 'column'}}>
+            <div style={{padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                <div style={{fontSize: '26px', fontWeight: '700', color: 'white'}}>PáircPro</div>
+                <button onClick={handleSignOut} style={{background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '600'}}>
+                    Sign Out
+                </button>
             </div>
-
-            {/* Content */}
-            <div style={{flex: 1, padding: '48px', overflow: 'auto'}}>
-                {activeView === 'upload' && (
-                    <div>
-                        <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '32px'}}>UPLOAD VIDEO</h1>
+            
+            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px'}}>
+                <div style={{textAlign: 'center', maxWidth: '600px'}}>
+                    <h1 style={{fontSize: '48px', fontWeight: '900', color: 'white', marginBottom: '24px'}}>Upload Match Video</h1>
+                    <p style={{fontSize: '18px', color: 'rgba(255,255,255,0.8)', marginBottom: '48px'}}>
+                        Choose a match video to start your analysis
+                    </p>
+                    
+                    <input
+                        type="file"
+                        accept="video/*"
+                        onChange={handleVideoUpload}
+                        disabled={uploading}
+                        style={{display: 'none'}}
+                        id="video-upload"
+                    />
+                    <label htmlFor="video-upload" style={{cursor: uploading ? 'not-allowed' : 'pointer'}}>
                         <div style={{
-                            background: 'rgba(255,255,255,0.05)',
+                            background: 'rgba(255,255,255,0.1)',
+                            backdropFilter: 'blur(20px)',
                             border: '2px dashed rgba(255,255,255,0.3)',
                             borderRadius: '16px',
-                            padding: '64px 32px',
-                            textAlign: 'center',
-                            maxWidth: '600px'
+                            padding: '64px',
+                            display: 'inline-block',
+                            transition: 'all 0.2s ease'
                         }}>
-                            <input
-                                type="file"
-                                accept="video/*"
-                                onChange={handleVideoUpload}
-                                disabled={uploading}
-                                style={{display: 'none'}}
-                                id="video-upload"
-                            />
-                            <label htmlFor="video-upload" style={{cursor: uploading ? 'not-allowed' : 'pointer', display: 'block'}}>
-                                <div style={{fontSize: '64px', marginBottom: '24px'}}>
-                                    <Icons.Upload />
-                                </div>
-                                <h3 style={{color: 'white', fontSize: '24px', fontWeight: '700', marginBottom: '12px'}}>
-                                    {uploading ? `Uploading... ${uploadProgress}%` : 'Click to Upload Video'}
-                                </h3>
-                                <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '16px'}}>
-                                    MP4, MOV, AVI • Max 2GB
-                                </p>
-                            </label>
-                        </div>
-                    </div>
-                )}
-
-                {activeView === 'matches' && (
-                    <div>
-                        <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '32px'}}>MY MATCHES</h1>
-                        {matches.length === 0 ? (
-                            <div style={{background: 'rgba(255,255,255,0.05)', borderRadius: '16px', padding: '48px', textAlign: 'center'}}>
-                                <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '18px'}}>
-                                    No matches yet. Upload your first video to get started!
-                                </p>
+                            <div style={{fontSize: '64px', marginBottom: '24px'}}>📁</div>
+                            <div style={{fontSize: '24px', fontWeight: '700', color: 'white', marginBottom: '12px'}}>
+                                {uploading ? 'Uploading...' : 'Choose Match Video'}
                             </div>
-                        ) : (
-                            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px'}}>
-                                {matches.map(match => (
-                                    <div 
-                                        key={match.id}
-                                        onClick={() => setCurrentMatch(match)}
-                                        style={{
-                                            background: 'rgba(255,255,255,0.05)',
-                                            borderRadius: '12px',
-                                            overflow: 'hidden',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s ease',
-                                            border: '1px solid rgba(255,255,255,0.1)'
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                                    >
-                                        <div style={{aspectRatio: '16/9', background: '#00833E', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                            <Icons.Play />
-                                        </div>
-                                        <div style={{padding: '16px'}}>
-                                            <h3 style={{color: 'white', fontSize: '18px', fontWeight: '700', marginBottom: '8px'}}>
-                                                {match.title}
-                                            </h3>
-                                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '14px'}}>
-                                                {match.sport === 'football' ? 'Football' : 'Hurling'} • {new Date(match.created_at).toLocaleDateString()}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
+                            <div style={{fontSize: '16px', color: 'rgba(255,255,255,0.7)'}}>
+                                MP4, MOV, AVI • Max 5GB
                             </div>
-                        )}
-                    </div>
-                )}
-
-                {activeView === 'teams' && (
-                    <div>
-                        <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '32px'}}>TEAMS</h1>
-                        <div style={{background: 'rgba(255,255,255,0.05)', borderRadius: '16px', padding: '48px', textAlign: 'center'}}>
-                            <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '18px'}}>
-                                Team management coming soon!
-                            </p>
                         </div>
-                    </div>
-                )}
-
-                {activeView === 'settings' && (
-                    <div>
-                        <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '32px'}}>SETTINGS</h1>
-                        <div style={{background: 'rgba(255,255,255,0.05)', borderRadius: '16px', padding: '48px', textAlign: 'center'}}>
-                            <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '18px'}}>
-                                Settings coming soon!
-                            </p>
-                        </div>
-                    </div>
-                )}
+                    </label>
+                </div>
             </div>
         </div>
     );
 }
 
-// Nav Item Component
-function NavItem({ icon, label, active, onClick }) {
-    return (
-        <div 
-            onClick={onClick}
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                background: active ? 'rgba(255,255,255,0.15)' : 'transparent',
-                color: active ? 'white' : 'rgba(255,255,255,0.7)',
-                transition: 'all 0.2s ease',
-                fontWeight: '600',
-                fontSize: '14px'
-            }}
-            onMouseEnter={(e) => !active && (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
-            onMouseLeave={(e) => !active && (e.currentTarget.style.background = 'transparent')}
-        >
-            {icon}
-            <span>{label}</span>
-        </div>
-    );
-}
-
-// Complete Analysis View with 3-Column Layout
-function AnalysisView({ match, setCurrentMatch }) {
+// Complete Analysis Interface - 3 Column Layout from app-OLD.html
+function AnalysisInterface({ videoUrl, videoFile, currentMatch, handleSignOut }) {
     const videoRef = useRef(null);
+    const [currentSport, setCurrentSport] = useState('football');
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [playbackSpeed, setPlaybackSpeed] = useState(1);
-    const [volume, setVolume] = useState(1);
-    const [sport, setSport] = useState(match.sport || 'football');
-    const [events, setEvents] = useState(match.events || []);
-    const [stats, setStats] = useState({});
-    const [scores, setScores] = useState({ home: { goals: 0, points: 0 }, away: { goals: 0, points: 0 } });
-    const [selectedEvent, setSelectedEvent] = useState(null);
-    const [showPitchDiagram, setShowPitchDiagram] = useState(false);
-    const [clipStart, setClipStart] = useState(null);
-    const [clipEnd, setClipEnd] = useState(null);
-    const [showClipCreator, setShowClipCreator] = useState(false);
+    const [events, setEvents] = useState([]);
+    const [stats, setStats] = useState({
+        'Goal': 0, 'Point': 0, '2 Point': 0, 'Wide': 0, 'Saved': 0, '45': 0, '65': 0,
+        'Own Kickout Won': 0, 'Own Kickout Lost': 0, 'Opp Kickout Won': 0, 'Opp Kickout Lost': 0,
+        'Free Kick': 0, 'Sideline': 0, 'Penalty': 0, 'Throw-in': 0,
+        'Foul': 0, 'Yellow Card': 0, 'Red Card': 0, 'Black Card': 0,
+        'Substitution': 0, 'Mark': 0, 'Turnover': 0, 'Blocked': 0, 'Short': 0
+    });
+    const [scores, setScores] = useState({
+        home: { goals: 0, points: 0 },
+        away: { goals: 0, points: 0 }
+    });
 
-    // Initialize stats for current sport
-    useEffect(() => {
-        const initialStats = {};
-        [...EVENT_TYPES[sport].scoring, ...EVENT_TYPES[sport].nonScoring].forEach(type => {
-            initialStats[type] = 0;
-        });
-        setStats(initialStats);
-    }, [sport]);
+    // Format time helper
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
 
-    // Video controls
-    const togglePlay = () => {
-        if (videoRef.current) {
-            if (isPlaying) {
-                videoRef.current.pause();
-            } else {
-                videoRef.current.play();
-            }
-            setIsPlaying(!isPlaying);
+    // Video control handlers
+    const togglePlayPause = () => {
+        if (!videoRef.current) return;
+        if (isPlaying) {
+            videoRef.current.pause();
+        } else {
+            videoRef.current.play();
         }
+        setIsPlaying(!isPlaying);
     };
 
     const handleTimeUpdate = () => {
@@ -700,763 +271,466 @@ function AnalysisView({ match, setCurrentMatch }) {
         }
     };
 
-    const handleSeek = (e) => {
+    const seekVideo = (e) => {
+        if (!videoRef.current) return;
         const rect = e.currentTarget.getBoundingClientRect();
-        const pos = (e.clientX - rect.left) / rect.width;
-        if (videoRef.current) {
-            videoRef.current.currentTime = pos * duration;
-        }
+        const clickX = e.clientX - rect.left;
+        const percentage = clickX / rect.width;
+        const newTime = percentage * duration;
+        videoRef.current.currentTime = newTime;
     };
 
-    const skipBackward = () => {
-        if (videoRef.current) {
-            videoRef.current.currentTime = Math.max(0, currentTime - 5);
-        }
-    };
-
-    const skipForward = () => {
-        if (videoRef.current) {
-            videoRef.current.currentTime = Math.min(duration, currentTime + 5);
-        }
-    };
-
-    const changeSpeed = () => {
-        const speeds = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
-        const currentIndex = speeds.indexOf(playbackSpeed);
-        const nextSpeed = speeds[(currentIndex + 1) % speeds.length];
-        setPlaybackSpeed(nextSpeed);
-        if (videoRef.current) {
-            videoRef.current.playbackRate = nextSpeed;
-        }
-    };
-
-    const handleVolumeChange = (e) => {
-        const newVolume = parseFloat(e.target.value);
-        setVolume(newVolume);
-        if (videoRef.current) {
-            videoRef.current.volume = newVolume;
-        }
-    };
-
-    const toggleFullscreen = () => {
-        if (videoRef.current) {
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            } else {
-                videoRef.current.requestFullscreen();
-            }
-        }
-    };
-
-    // Event tagging
-    const tagEvent = (eventType, team = 'home') => {
+    // Tag event - EXACT logic from app-OLD.html
+    const tagEvent = (eventType) => {
+        const timestamp = currentTime;
         const event = {
-            id: Date.now(),
             type: eventType,
-            time: currentTime,
-            timeString: formatTime(currentTime),
-            sport: sport,
-            team: team,
-            playerNumber: null,
-            location: null,
-            notes: ''
+            time: timestamp,
+            timeString: formatTime(timestamp),
+            sport: currentSport,
+            id: Date.now()
         };
-
+        
         const newEvents = [...events, event].sort((a, b) => a.time - b.time);
         setEvents(newEvents);
-
-        // Update stats
-        const newStats = { ...stats };
-        newStats[eventType] = (newStats[eventType] || 0) + 1;
-        setStats(newStats);
-
-        // Update scores
+        
+        // Update statistics
+        setStats(prev => ({
+            ...prev,
+            [eventType]: prev[eventType] + 1
+        }));
+        
+        // Update scores (simple logic - always home team for now)
         if (eventType === 'Goal') {
             setScores(prev => ({
                 ...prev,
-                [team]: { ...prev[team], goals: prev[team].goals + 1 }
+                home: { ...prev.home, goals: prev.home.goals + 1 }
             }));
         } else if (eventType === 'Point') {
             setScores(prev => ({
                 ...prev,
-                [team]: { ...prev[team], points: prev[team].points + 1 }
+                home: { ...prev.home, points: prev.home.points + 1 }
+            }));
+        } else if (eventType === '2 Point') {
+            setScores(prev => ({
+                ...prev,
+                home: { ...prev.home, points: prev.home.points + 2 }
             }));
         }
 
         // Save to database
-        saveMatch(newEvents);
-    };
-
-    const deleteEvent = (eventId) => {
-        const newEvents = events.filter(e => e.id !== eventId);
-        setEvents(newEvents);
-        saveMatch(newEvents);
-    };
-
-    const saveMatch = async (updatedEvents) => {
-        await supabase
-            .from('matches')
-            .update({ events: updatedEvents })
-            .eq('id', match.id);
-    };
-
-    const jumpToEvent = (time) => {
-        if (videoRef.current) {
-            videoRef.current.currentTime = time;
+        if (currentMatch) {
+            supabase.from('matches').update({ events: newEvents }).eq('id', currentMatch.id);
         }
     };
 
-    const formatTime = (seconds) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    };
-
-    // Export functions
+    // Export CSV function
     const exportCSV = () => {
         if (events.length === 0) {
             alert('No events to export');
             return;
         }
-
+        
         const csvContent = [
-            ['Event Type', 'Time (seconds)', 'Time (MM:SS)', 'Team', 'Sport', 'Player', 'Notes'],
+            ['Event Type', 'Time (seconds)', 'Time (MM:SS)', 'Sport', 'Timestamp'],
             ...events.map(event => [
                 event.type,
                 event.time.toFixed(2),
                 event.timeString,
-                event.team,
                 event.sport,
-                event.playerNumber || '',
-                event.notes || ''
+                new Date().toISOString()
             ])
         ].map(row => row.join(',')).join('\n');
-
+        
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `paircpro-${match.title}-events.csv`;
+        a.download = `paircpro-events-${Date.now()}.csv`;
         a.click();
     };
 
-    const exportJSON = () => {
-        const data = {
-            match: match.title,
-            sport: sport,
+    // Save project as JSON
+    const saveProject = () => {
+        const projectData = {
             events: events,
             stats: stats,
             scores: scores,
-            exportedAt: new Date().toISOString()
+            sport: currentSport,
+            timestamp: new Date().toISOString()
         };
-
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        
+        const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `paircpro-${match.title}-analysis.json`;
+        a.download = `paircpro-project-${Date.now()}.json`;
         a.click();
     };
 
-    // Keyboard shortcuts
+    // Keyboard shortcuts - EXACT from app-OLD.html
     useEffect(() => {
         const handleKeyPress = (e) => {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
+            if (e.target.tagName === 'INPUT') return;
+            
             switch(e.key.toLowerCase()) {
-                case ' ': e.preventDefault(); togglePlay(); break;
-                case 'arrowleft': skipBackward(); break;
-                case 'arrowright': skipForward(); break;
-                case 'f': toggleFullscreen(); break;
                 case 'g': tagEvent('Goal'); break;
                 case 'p': tagEvent('Point'); break;
                 case 'w': tagEvent('Wide'); break;
                 case 's': tagEvent('Saved'); break;
+                case 'f': tagEvent('Foul'); break;
+                case 'c': tagEvent('Yellow Card'); break;
+                case ' ': 
+                    e.preventDefault();
+                    togglePlayPause();
+                    break;
             }
         };
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [isPlaying, currentTime, sport]);
-
-    const totalHomeScore = scores.home.goals * 3 + scores.home.points;
-    const totalAwayScore = scores.away.goals * 3 + scores.away.points;
+    }, [currentTime, currentSport, events, stats, scores]);
 
     return (
-        <div style={{display: 'flex', height: 'calc(100vh - 73px)', overflow: 'hidden'}}>
-            {/* Left Panel - Event Tagging */}
-            <div style={{
-                width: '280px',
-                background: 'rgba(255,255,255,0.05)',
-                borderRight: '1px solid rgba(255,255,255,0.1)',
-                overflow: 'auto',
-                padding: '20px'
-            }}>
-                {/* Sport Selector */}
-                <div style={{marginBottom: '24px'}}>
-                    <h3 style={{color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', marginBottom: '12px'}}>SPORT</h3>
-                    <div style={{display: 'flex', gap: '8px'}}>
-                        <button
-                            onClick={() => setSport('football')}
+        <div style={{display: 'flex', height: '100vh', background: 'linear-gradient(135deg, #0066cc 0%, #004499 100%)', color: 'white'}}>
+            {/* LEFT PANEL - Event Tagging */}
+            <div style={{width: '320px', minWidth: '280px', maxWidth: '360px', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', height: '100vh', overflowY: 'auto'}}>
+                <div style={{padding: '24px 20px', background: 'rgba(255,255,255,0.1)', borderBottom: '1px solid rgba(255,255,255,0.1)', fontSize: '26px', fontWeight: '700', textAlign: 'center'}}>
+                    PáircPro
+                </div>
+
+                {/* Match Setup */}
+                <div style={{padding: '20px', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', borderRadius: '12px', margin: '20px 16px', border: '1px solid rgba(255,255,255,0.1)'}}>
+                    <div style={{fontWeight: '700', fontSize: '16px', marginBottom: '16px'}}>Match Setup</div>
+                    <div style={{display: 'flex', gap: '6px', marginBottom: '12px'}}>
+                        <div 
+                            onClick={() => setCurrentSport('football')}
                             style={{
                                 flex: 1,
-                                padding: '10px',
-                                background: sport === 'football' ? 'white' : 'rgba(255,255,255,0.1)',
-                                color: sport === 'football' ? '#00833E' : 'white',
-                                border: 'none',
+                                padding: '10px 12px',
+                                background: currentSport === 'football' ? 'white' : 'rgba(255,255,255,0.1)',
+                                color: currentSport === 'football' ? '#0066cc' : 'rgba(255,255,255,0.8)',
+                                border: currentSport === 'football' ? 'none' : '1px solid rgba(255,255,255,0.15)',
                                 borderRadius: '8px',
-                                fontWeight: '700',
+                                textAlign: 'center',
+                                cursor: 'pointer',
                                 fontSize: '13px',
-                                cursor: 'pointer'
+                                fontWeight: '600',
+                                transition: 'all 0.2s ease'
                             }}
                         >
                             Football
-                        </button>
-                        <button
-                            onClick={() => setSport('hurling')}
+                        </div>
+                        <div 
+                            onClick={() => setCurrentSport('hurling')}
                             style={{
                                 flex: 1,
-                                padding: '10px',
-                                background: sport === 'hurling' ? 'white' : 'rgba(255,255,255,0.1)',
-                                color: sport === 'hurling' ? '#00833E' : 'white',
-                                border: 'none',
+                                padding: '10px 12px',
+                                background: currentSport === 'hurling' ? 'white' : 'rgba(255,255,255,0.1)',
+                                color: currentSport === 'hurling' ? '#0066cc' : 'rgba(255,255,255,0.8)',
+                                border: currentSport === 'hurling' ? 'none' : '1px solid rgba(255,255,255,0.15)',
                                 borderRadius: '8px',
-                                fontWeight: '700',
+                                textAlign: 'center',
+                                cursor: 'pointer',
                                 fontSize: '13px',
-                                cursor: 'pointer'
+                                fontWeight: '600',
+                                transition: 'all 0.2s ease'
                             }}
                         >
                             Hurling
+                        </div>
+                    </div>
+                </div>
+
+                {/* Event Tagging - EXACT categories from app-OLD.html */}
+                <div style={{padding: '0 16px 20px', flex: 1, overflowY: 'auto'}}>
+                    {/* Scoring Events */}
+                    <div style={{marginBottom: '20px'}}>
+                        <div style={{fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px'}}>
+                            Scoring
+                        </div>
+                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px'}}>
+                            <EventButton onClick={() => tagEvent('Goal')} color="#10b981">Goal</EventButton>
+                            <EventButton onClick={() => tagEvent('Point')} color="#f59e0b">Point</EventButton>
+                            {currentSport === 'football' && <EventButton onClick={() => tagEvent('2 Point')} color="#f59e0b">2 Point</EventButton>}
+                            <EventButton onClick={() => tagEvent('Wide')} color="#ef4444">Wide</EventButton>
+                            <EventButton onClick={() => tagEvent('Saved')} color="#06b6d4">Saved</EventButton>
+                            <EventButton onClick={() => tagEvent(currentSport === 'football' ? '45' : '65')} color="#8b5cf6">
+                                {currentSport === 'football' ? '45' : '65'}
+                            </EventButton>
+                        </div>
+                    </div>
+
+                    {/* Own Kickouts */}
+                    <div style={{marginBottom: '20px'}}>
+                        <div style={{fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700', textTransform: 'uppercase'}}>
+                            Own Kickouts
+                        </div>
+                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
+                            <EventButton onClick={() => tagEvent('Own Kickout Won')} color="#3b82f6">Won</EventButton>
+                            <EventButton onClick={() => tagEvent('Own Kickout Lost')} color="#ef4444">Lost</EventButton>
+                        </div>
+                    </div>
+
+                    {/* Opposition Kickouts */}
+                    <div style={{marginBottom: '20px'}}>
+                        <div style={{fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700', textTransform: 'uppercase'}}>
+                            Opposition Kickouts
+                        </div>
+                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
+                            <EventButton onClick={() => tagEvent('Opp Kickout Won')} color="#3b82f6">Won</EventButton>
+                            <EventButton onClick={() => tagEvent('Opp Kickout Lost')} color="#ef4444">Lost</EventButton>
+                        </div>
+                    </div>
+
+                    {/* Other Restarts */}
+                    <div style={{marginBottom: '20px'}}>
+                        <div style={{fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700', textTransform: 'uppercase'}}>
+                            Other Restarts
+                        </div>
+                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
+                            <EventButton onClick={() => tagEvent('Free Kick')} color="#3b82f6">Free Kick</EventButton>
+                            <EventButton onClick={() => tagEvent('Sideline')} color="#3b82f6">Sideline</EventButton>
+                            <EventButton onClick={() => tagEvent('Penalty')} color="#a855f7">Penalty</EventButton>
+                            <EventButton onClick={() => tagEvent('Throw-in')} color="#a855f7">Throw-in</EventButton>
+                        </div>
+                    </div>
+
+                    {/* Fouls */}
+                    <div style={{marginBottom: '20px'}}>
+                        <div style={{fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700', textTransform: 'uppercase'}}>
+                            Fouls
+                        </div>
+                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
+                            <EventButton onClick={() => tagEvent('Foul')} color="#f97316">Foul</EventButton>
+                            <EventButton onClick={() => tagEvent('Yellow Card')} color="#eab308">Yellow</EventButton>
+                            <EventButton onClick={() => tagEvent('Red Card')} color="#dc2626">Red</EventButton>
+                            <EventButton onClick={() => tagEvent('Black Card')} color="#1f2937">Black</EventButton>
+                        </div>
+                    </div>
+
+                    {/* Other */}
+                    <div style={{marginBottom: '20px'}}>
+                        <div style={{fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700', textTransform: 'uppercase'}}>
+                            Other
+                        </div>
+                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
+                            <EventButton onClick={() => tagEvent('Substitution')} color="#64748b">Sub</EventButton>
+                            <EventButton onClick={() => tagEvent('Mark')} color="#64748b">Mark</EventButton>
+                            <EventButton onClick={() => tagEvent('Turnover')} color="#ef4444">Turnover</EventButton>
+                            <EventButton onClick={() => tagEvent('Blocked')} color="#06b6d4">Blocked</EventButton>
+                            <EventButton onClick={() => tagEvent('Short')} color="#ef4444">Short</EventButton>
+                        </div>
+                    </div>
+
+                    {/* Keyboard Shortcuts */}
+                    <div style={{marginTop: '16px', padding: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '11px', border: '1px solid rgba(255,255,255,0.1)'}}>
+                        <strong style={{display: 'block', marginBottom: '8px'}}>Keyboard Shortcuts:</strong>
+                        G: Goal • P: Point • W: Wide • S: Saved • F: Foul • C: Yellow Card • Space: Play/Pause
+                    </div>
+                </div>
+            </div>
+
+            {/* CENTER - Video Player */}
+            <div style={{flex: 1, display: 'flex', flexDirection: 'column', background: 'rgba(255,255,255,0.02)'}}>
+                {/* Top Bar */}
+                <div style={{background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <h1 style={{fontSize: '24px', fontWeight: '700'}}>Video Analysis</h1>
+                    <div style={{display: 'flex', gap: '12px'}}>
+                        <button onClick={saveProject} style={{padding: '10px 20px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '14px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>
+                            Save Project
+                        </button>
+                        <button onClick={exportCSV} style={{padding: '10px 20px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '14px', background: 'white', color: '#0066cc'}}>
+                            Export Analysis
                         </button>
                     </div>
                 </div>
 
-                {/* Scoring Events */}
-                <div style={{marginBottom: '24px'}}>
-                    <h3 style={{color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', marginBottom: '12px'}}>SCORING</h3>
-                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px'}}>
-                        {EVENT_TYPES[sport].scoring.map(type => (
-                            <button
-                                key={type}
-                                onClick={() => tagEvent(type)}
-                                style={{
-                                    padding: '12px 8px',
-                                    background: 'rgba(0,131,62,0.2)',
-                                    border: '1px solid rgba(0,131,62,0.4)',
-                                    borderRadius: '8px',
-                                    color: 'white',
-                                    fontWeight: '700',
-                                    fontSize: '12px',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease'
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,131,62,0.3)'}
-                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0,131,62,0.2)'}
-                            >
-                                {type}
-                            </button>
-                        ))}
+                {/* Video Container */}
+                <div style={{flex: 1, padding: '20px', display: 'flex', flexDirection: 'column'}}>
+                    <div style={{flex: 1, background: '#000', borderRadius: '12px', overflow: 'hidden', marginBottom: '16px'}}>
+                        <video
+                            ref={videoRef}
+                            src={videoUrl}
+                            onTimeUpdate={handleTimeUpdate}
+                            onLoadedMetadata={handleLoadedMetadata}
+                            style={{width: '100%', height: '100%', objectFit: 'contain'}}
+                        />
                     </div>
-                </div>
 
-                {/* Non-Scoring Events */}
-                <div style={{marginBottom: '24px'}}>
-                    <h3 style={{color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', marginBottom: '12px'}}>EVENTS</h3>
-                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px'}}>
-                        {EVENT_TYPES[sport].nonScoring.map(type => (
-                            <button
-                                key={type}
-                                onClick={() => tagEvent(type)}
-                                style={{
-                                    padding: '12px 8px',
-                                    background: 'rgba(255,255,255,0.1)',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    borderRadius: '8px',
-                                    color: 'white',
-                                    fontWeight: '700',
-                                    fontSize: '11px',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease'
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                            >
-                                {type}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Quick Actions */}
-                <div>
-                    <h3 style={{color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', marginBottom: '12px'}}>TOOLS</h3>
-                    <button
-                        onClick={() => setShowPitchDiagram(!showPitchDiagram)}
-                        style={{
-                            width: '100%',
-                            padding: '12px',
-                            background: showPitchDiagram ? 'rgba(0,131,62,0.3)' : 'rgba(255,255,255,0.1)',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            borderRadius: '8px',
-                            color: 'white',
-                            fontWeight: '700',
-                            fontSize: '13px',
-                            cursor: 'pointer',
-                            marginBottom: '8px'
-                        }}
-                    >
-                        {showPitchDiagram ? 'Hide' : 'Show'} Pitch Diagram
-                    </button>
-                    <button
-                        onClick={() => setShowClipCreator(!showClipCreator)}
-                        style={{
-                            width: '100%',
-                            padding: '12px',
-                            background: 'rgba(255,255,255,0.1)',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            borderRadius: '8px',
-                            color: 'white',
-                            fontWeight: '700',
-                            fontSize: '13px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '8px'
-                        }}
-                    >
-                        <Icons.Scissors /> Create Clip
-                    </button>
-                </div>
-            </div>
-
-            {/* Center Panel - Video Player */}
-            <div style={{flex: 1, display: 'flex', flexDirection: 'column', background: '#000', padding: '20px'}}>
-                {/* Video */}
-                <div style={{flex: 1, background: '#000', borderRadius: '12px', overflow: 'hidden', marginBottom: '16px', position: 'relative'}}>
-                    <video
-                        ref={videoRef}
-                        src={match.video_url}
-                        onTimeUpdate={handleTimeUpdate}
-                        onLoadedMetadata={handleLoadedMetadata}
-                        style={{width: '100%', height: '100%', objectFit: 'contain'}}
-                    />
-                </div>
-
-                {/* Video Controls */}
-                <div style={{background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '16px'}}>
-                    {/* Progress Bar */}
-                    <div 
-                        onClick={handleSeek}
-                        style={{
-                            height: '6px',
-                            background: 'rgba(255,255,255,0.2)',
-                            borderRadius: '3px',
-                            marginBottom: '16px',
-                            cursor: 'pointer',
-                            position: 'relative',
-                            overflow: 'visible'
-                        }}
-                    >
-                        <div style={{
-                            height: '100%',
-                            background: '#00833E',
-                            borderRadius: '3px',
-                            width: `${(currentTime / duration) * 100}%`,
-                            position: 'relative'
-                        }}>
+                    {/* Video Controls */}
+                    <div style={{background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', borderRadius: '12px', padding: '16px', border: '1px solid rgba(255,255,255,0.1)'}}>
+                        {/* Progress Bar */}
+                        <div 
+                            onClick={seekVideo}
+                            style={{
+                                height: '6px',
+                                background: 'rgba(255,255,255,0.2)',
+                                borderRadius: '3px',
+                                marginBottom: '16px',
+                                cursor: 'pointer',
+                                position: 'relative'
+                            }}
+                        >
                             <div style={{
-                                position: 'absolute',
-                                right: '-6px',
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                width: '12px',
-                                height: '12px',
+                                height: '100%',
                                 background: 'white',
-                                borderRadius: '50%',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-                            }}></div>
-                        </div>
-                        
-                        {/* Event markers on timeline */}
-                        {events.map(event => (
-                            <div
-                                key={event.id}
-                                onClick={(e) => { e.stopPropagation(); jumpToEvent(event.time); }}
-                                style={{
+                                borderRadius: '3px',
+                                width: `${(currentTime / duration) * 100}%`,
+                                position: 'relative'
+                            }}>
+                                <div style={{
                                     position: 'absolute',
-                                    left: `${(event.time / duration) * 100}%`,
-                                    top: '-4px',
-                                    width: '4px',
-                                    height: '14px',
-                                    background: event.type === 'Goal' ? '#10b981' : event.type === 'Point' ? '#f59e0b' : 'white',
-                                    borderRadius: '2px',
-                                    cursor: 'pointer'
-                                }}
-                            />
-                        ))}
-                    </div>
-
-                    {/* Control Buttons */}
-                    <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
-                        <button onClick={skipBackward} style={controlButtonStyle}>
-                            <Icons.SkipBack />
-                        </button>
-                        <button onClick={togglePlay} style={{...controlButtonStyle, width: '48px', height: '48px'}}>
-                            {isPlaying ? <Icons.Pause /> : <Icons.Play />}
-                        </button>
-                        <button onClick={skipForward} style={controlButtonStyle}>
-                            <Icons.SkipForward />
-                        </button>
-                        
-                        <span style={{color: 'white', fontSize: '14px', fontWeight: '600', marginLeft: '8px'}}>
-                            {formatTime(currentTime)} / {formatTime(duration)}
-                        </span>
-
-                        <button onClick={changeSpeed} style={{...controlButtonStyle, width: 'auto', padding: '0 16px', marginLeft: 'auto'}}>
-                            <span style={{fontSize: '13px', fontWeight: '700'}}>{playbackSpeed}x</span>
-                        </button>
-
-                        <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                            <Icons.Volume />
-                            <input
-                                type="range"
-                                min="0"
-                                max="1"
-                                step="0.1"
-                                value={volume}
-                                onChange={handleVolumeChange}
-                                style={{width: '80px'}}
-                            />
+                                    right: '-6px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    width: '12px',
+                                    height: '12px',
+                                    background: 'white',
+                                    borderRadius: '50%',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                                }}></div>
+                            </div>
+                            
+                            {/* Event markers on timeline */}
+                            {events.map(event => (
+                                <div
+                                    key={event.id}
+                                    style={{
+                                        position: 'absolute',
+                                        left: `${(event.time / duration) * 100}%`,
+                                        top: '-4px',
+                                        width: '4px',
+                                        height: '14px',
+                                        background: event.type === 'Goal' ? '#10b981' : event.type === 'Point' || event.type === '2 Point' ? '#f59e0b' : event.type === 'Foul' ? '#f97316' : 'white',
+                                        borderRadius: '2px',
+                                        cursor: 'pointer'
+                                    }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (videoRef.current) videoRef.current.currentTime = event.time;
+                                    }}
+                                />
+                            ))}
                         </div>
 
-                        <button onClick={toggleFullscreen} style={controlButtonStyle}>
-                            <Icons.Fullscreen />
-                        </button>
+                        {/* Control Buttons */}
+                        <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
+                            <button onClick={togglePlayPause} style={{width: '48px', height: '48px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '18px'}}>
+                                {isPlaying ? '⏸' : '▶'}
+                            </button>
+                            <span style={{color: 'white', fontSize: '14px', fontWeight: '600'}}>
+                                {formatTime(currentTime)} / {formatTime(duration)}
+                            </span>
+                        </div>
                     </div>
                 </div>
-
-                {/* Pitch Diagram */}
-                {showPitchDiagram && (
-                    <div style={{
-                        marginTop: '16px',
-                        background: 'rgba(255,255,255,0.05)',
-                        borderRadius: '12px',
-                        padding: '24px'
-                    }}>
-                        <h3 style={{color: 'white', fontSize: '16px', fontWeight: '700', marginBottom: '16px'}}>PITCH DIAGRAM</h3>
-                        <GAAPitchDiagram events={events} />
-                    </div>
-                )}
-
-                {/* Clip Creator */}
-                {showClipCreator && (
-                    <div style={{
-                        marginTop: '16px',
-                        background: 'rgba(255,255,255,0.05)',
-                        borderRadius: '12px',
-                        padding: '24px'
-                    }}>
-                        <h3 style={{color: 'white', fontSize: '16px', fontWeight: '700', marginBottom: '16px'}}>CREATE CLIP</h3>
-                        <div style={{display: 'flex', gap: '12px', alignItems: 'center'}}>
-                            <button
-                                onClick={() => setClipStart(currentTime)}
-                                style={{
-                                    padding: '12px 20px',
-                                    background: clipStart !== null ? 'rgba(0,131,62,0.3)' : 'rgba(255,255,255,0.1)',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    borderRadius: '8px',
-                                    color: 'white',
-                                    fontWeight: '700',
-                                    fontSize: '13px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Set Start {clipStart !== null && `(${formatTime(clipStart)})`}
-                            </button>
-                            <button
-                                onClick={() => setClipEnd(currentTime)}
-                                style={{
-                                    padding: '12px 20px',
-                                    background: clipEnd !== null ? 'rgba(0,131,62,0.3)' : 'rgba(255,255,255,0.1)',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    borderRadius: '8px',
-                                    color: 'white',
-                                    fontWeight: '700',
-                                    fontSize: '13px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Set End {clipEnd !== null && `(${formatTime(clipEnd)})`}
-                            </button>
-                            <button
-                                onClick={() => alert('Clip export coming soon!')}
-                                disabled={clipStart === null || clipEnd === null}
-                                style={{
-                                    padding: '12px 20px',
-                                    background: '#00833E',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    color: 'white',
-                                    fontWeight: '700',
-                                    fontSize: '13px',
-                                    cursor: 'pointer',
-                                    opacity: (clipStart === null || clipEnd === null) ? 0.5 : 1,
-                                    marginLeft: 'auto'
-                                }}
-                            >
-                                Export Clip
-                            </button>
-                        </div>
-                    </div>
-                )}
             </div>
 
-            {/* Right Panel - Stats & Events */}
-            <div style={{
-                width: '320px',
-                background: 'rgba(255,255,255,0.05)',
-                borderLeft: '1px solid rgba(255,255,255,0.1)',
-                overflow: 'auto',
-                padding: '20px'
-            }}>
+            {/* RIGHT PANEL - Statistics & Events */}
+            <div style={{width: '320px', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', borderLeft: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', height: '100vh', overflowY: 'auto', padding: '20px'}}>
                 {/* Scoreboard */}
-                <div style={{
-                    background: 'rgba(0,131,62,0.2)',
-                    border: '2px solid rgba(0,131,62,0.4)',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    marginBottom: '20px'
-                }}>
-                    <h3 style={{color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', marginBottom: '16px', textAlign: 'center'}}>SCORE</h3>
-                    <div style={{display: 'flex', justifyContent: 'space-around', alignItems: 'center'}}>
-                        <div style={{textAlign: 'center'}}>
-                            <div style={{color: 'white', fontSize: '32px', fontWeight: '900', marginBottom: '4px'}}>
-                                {scores.home.goals}-{scores.home.points.toString().padStart(2, '0')}
+                <div style={{background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '20px', overflow: 'hidden'}}>
+                    <div style={{padding: '20px', background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.1)', fontWeight: '700', fontSize: '16px'}}>
+                        Scoreboard
+                    </div>
+                    <div style={{padding: '24px'}}>
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
+                            <div style={{textAlign: 'center'}}>
+                                <div style={{fontSize: '14px', color: 'rgba(255,255,255,0.6)', marginBottom: '8px', fontWeight: '600'}}>HOME</div>
+                                <div style={{fontSize: '48px', fontWeight: '900', lineHeight: '1'}} id="homeScore">
+                                    {scores.home.goals}-{scores.home.points.toString().padStart(2, '0')}
+                                </div>
+                                <div style={{fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginTop: '8px'}}>
+                                    ({scores.home.goals * 3 + scores.home.points} pts)
+                                </div>
                             </div>
-                            <div style={{color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: '700'}}>
-                                HOME ({totalHomeScore})
-                            </div>
-                        </div>
-                        <div style={{color: 'rgba(255,255,255,0.5)', fontSize: '24px', fontWeight: '900'}}>VS</div>
-                        <div style={{textAlign: 'center'}}>
-                            <div style={{color: 'white', fontSize: '32px', fontWeight: '900', marginBottom: '4px'}}>
-                                {scores.away.goals}-{scores.away.points.toString().padStart(2, '0')}
-                            </div>
-                            <div style={{color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: '700'}}>
-                                AWAY ({totalAwayScore})
+                            <div style={{fontSize: '24px', color: 'rgba(255,255,255,0.5)', fontWeight: '900'}}>VS</div>
+                            <div style={{textAlign: 'center'}}>
+                                <div style={{fontSize: '14px', color: 'rgba(255,255,255,0.6)', marginBottom: '8px', fontWeight: '600'}}>AWAY</div>
+                                <div style={{fontSize: '48px', fontWeight: '900', lineHeight: '1'}} id="awayScore">
+                                    {scores.away.goals}-{scores.away.points.toString().padStart(2, '0')}
+                                </div>
+                                <div style={{fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginTop: '8px'}}>
+                                    ({scores.away.goals * 3 + scores.away.points} pts)
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Statistics */}
-                <div style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    marginBottom: '20px'
-                }}>
-                    <h3 style={{color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', marginBottom: '16px'}}>STATISTICS</h3>
-                    <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                <div style={{background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '20px', overflow: 'hidden'}}>
+                    <div style={{padding: '20px', background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.1)', fontWeight: '700', fontSize: '16px'}}>
+                        Statistics
+                    </div>
+                    <div style={{padding: '20px'}}>
                         <StatRow label="Total Events" value={events.length} />
-                        <StatRow label="Goals" value={stats.Goal || 0} />
-                        <StatRow label="Points" value={stats.Point || 0} />
-                        <StatRow label="Wides" value={stats.Wide || 0} />
-                        <StatRow label="Fouls" value={(stats.Foul || 0) + (stats['Yellow Card'] || 0) + (stats['Red Card'] || 0)} />
-                        <StatRow label="Turnovers" value={stats.Turnover || 0} />
+                        <StatRow label="Goals" value={stats.Goal} />
+                        <StatRow label="Points" value={stats.Point + stats['2 Point']} />
+                        <StatRow label="Fouls" value={stats.Foul + stats['Yellow Card'] + stats['Red Card'] + stats['Black Card']} />
+                        <StatRow label="Own Kickouts Won" value={stats['Own Kickout Won']} />
+                        <StatRow label="Opp Kickouts Won" value={stats['Opp Kickout Won']} />
                     </div>
                 </div>
 
-                {/* Events List */}
-                <div style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    borderRadius: '12px',
-                    padding: '20px'
-                }}>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
-                        <h3 style={{color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase'}}>EVENTS ({events.length})</h3>
-                        <button onClick={exportCSV} style={{
-                            padding: '6px 12px',
-                            background: 'rgba(0,131,62,0.3)',
-                            border: '1px solid rgba(0,131,62,0.5)',
-                            borderRadius: '6px',
-                            color: 'white',
-                            fontSize: '11px',
-                            fontWeight: '700',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px'
-                        }}>
-                            <Icons.Download /> CSV
-                        </button>
+                {/* Recent Events */}
+                <div style={{background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', flex: 1}}>
+                    <div style={{padding: '20px', background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.1)', fontWeight: '700', fontSize: '16px'}}>
+                        Recent Events
                     </div>
-                    <div style={{maxHeight: '400px', overflow: 'auto'}}>
+                    <div style={{padding: '20px', maxHeight: '220px', overflowY: 'auto'}}>
                         {events.length === 0 ? (
-                            <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '13px', textAlign: 'center', padding: '20px 0'}}>
-                                No events tagged yet
-                            </p>
+                            <p style={{opacity: '0.6', fontSize: '13px', textAlign: 'center'}}>No events tagged yet</p>
                         ) : (
-                            events.slice().reverse().map(event => (
-                                <div
-                                    key={event.id}
-                                    style={{
-                                        background: 'rgba(255,255,255,0.05)',
-                                        borderRadius: '8px',
-                                        padding: '12px',
-                                        marginBottom: '8px',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        border: '1px solid rgba(255,255,255,0.1)'
-                                    }}
-                                    onClick={() => jumpToEvent(event.time)}
-                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                                >
-                                    <div>
-                                        <div style={{color: 'white', fontSize: '13px', fontWeight: '700', marginBottom: '4px'}}>
-                                            {event.type}
-                                        </div>
-                                        <div style={{color: 'rgba(255,255,255,0.6)', fontSize: '11px'}}>
-                                            {event.timeString} • {event.team.toUpperCase()}
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); deleteEvent(event.id); }}
-                                        style={{
-                                            background: 'rgba(220,38,38,0.2)',
-                                            border: '1px solid rgba(220,38,38,0.3)',
-                                            borderRadius: '6px',
-                                            padding: '6px',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center'
-                                        }}
-                                    >
-                                        <Icons.Trash />
-                                    </button>
+                            events.slice(-5).reverse().map(event => (
+                                <div key={event.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'rgba(255,255,255,0.05)', marginBottom: '6px', borderRadius: '8px', fontSize: '13px', border: '1px solid rgba(255,255,255,0.1)'}}>
+                                    <span>{event.type}</span>
+                                    <span style={{fontFamily: 'monospace', color: 'rgba(255,255,255,0.8)', fontWeight: '600'}}>{event.timeString}</span>
                                 </div>
                             ))
                         )}
                     </div>
-                </div>
-
-                {/* Export Options */}
-                <div style={{marginTop: '20px'}}>
-                    <button
-                        onClick={exportJSON}
-                        style={{
-                            width: '100%',
-                            padding: '14px',
-                            background: '#00833E',
-                            border: 'none',
-                            borderRadius: '8px',
-                            color: 'white',
-                            fontWeight: '700',
-                            fontSize: '14px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '8px'
-                        }}
-                    >
-                        <Icons.Download /> Export Full Analysis
-                    </button>
                 </div>
             </div>
         </div>
     );
 }
 
+// Event Button Component
+function EventButton({ onClick, color, children }) {
+    return (
+        <button
+            onClick={onClick}
+            style={{
+                padding: '12px 8px',
+                background: `${color}33`,
+                border: `2px solid ${color}`,
+                borderRadius: '8px',
+                color: 'white',
+                fontWeight: '700',
+                fontSize: '12px',
+                cursor: 'pointer',
+                textAlign: 'center',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = `${color}66`}
+            onMouseLeave={(e) => e.currentTarget.style.background = `${color}33`}
+        >
+            {children}
+        </button>
+    );
+}
+
 // Stat Row Component
 function StatRow({ label, value }) {
     return (
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-            <span style={{color: 'rgba(255,255,255,0.7)', fontSize: '13px', fontWeight: '600'}}>{label}</span>
-            <span style={{color: 'white', fontSize: '16px', fontWeight: '900'}}>{value}</span>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', fontSize: '13px'}}>
+            <span style={{color: 'rgba(255,255,255,0.7)'}}>{label}</span>
+            <span style={{fontWeight: '900', fontSize: '16px'}} id={label.replace(/\s+/g, '')}>{value}</span>
         </div>
     );
 }
-
-// GAA Pitch Diagram Component
-function GAAPitchDiagram({ events }) {
-    return (
-        <div style={{
-            aspectRatio: '4/6',
-            background: 'rgba(0,131,62,0.2)',
-            borderRadius: '12px',
-            border: '2px solid rgba(0,131,62,0.4)',
-            position: 'relative',
-            overflow: 'hidden'
-        }}>
-            {/* Pitch markings */}
-            <svg width="100%" height="100%" style={{position: 'absolute', top: 0, left: 0}}>
-                {/* Center line */}
-                <line x1="0%" y1="50%" x2="100%" y2="50%" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-                
-                {/* 45/65 lines */}
-                <line x1="0%" y1="30%" x2="100%" y2="30%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="5,5" />
-                <line x1="0%" y1="70%" x2="100%" y2="70%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="5,5" />
-                
-                {/* Goal areas */}
-                <rect x="35%" y="2%" width="30%" height="8%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-                <rect x="35%" y="90%" width="30%" height="8%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-                
-                {/* Center circle */}
-                <circle cx="50%" cy="50%" r="10%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-            </svg>
-
-            {/* Event markers */}
-            {events.filter(e => e.location).map(event => (
-                <div
-                    key={event.id}
-                    style={{
-                        position: 'absolute',
-                        left: `${event.location.x}%`,
-                        top: `${event.location.y}%`,
-                        width: '12px',
-                        height: '12px',
-                        borderRadius: '50%',
-                        background: event.type === 'Goal' ? '#10b981' : event.type === 'Point' ? '#f59e0b' : 'white',
-                        border: '2px solid rgba(0,0,0,0.3)',
-                        transform: 'translate(-50%, -50%)'
-                    }}
-                />
-            ))}
-
-            <p style={{
-                position: 'absolute',
-                bottom: '8px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                color: 'rgba(255,255,255,0.5)',
-                fontSize: '11px',
-                fontWeight: '700'
-            }}>
-                Click event locations to mark on pitch
-            </p>
-        </div>
-    );
-}
-
-// Control button style
-const controlButtonStyle = {
-    width: '40px',
-    height: '40px',
-    background: 'rgba(255,255,255,0.1)',
-    border: '1px solid rgba(255,255,255,0.2)',
-    borderRadius: '8px',
-    color: 'white',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'all 0.2s ease'
-};
 
 export default App;
