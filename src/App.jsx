@@ -126,7 +126,7 @@ function LandingPage({ setView }) {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundImage: 'url(/hurling-hero.png)',
+                    backgroundImage: 'url(/hurling-hero.jpg)',
                     padding: '120px 24px 80px'
                 }}
             >
@@ -194,7 +194,7 @@ function LandingPage({ setView }) {
             <section 
                 className="hero-section hero-overlay-darker"
                 style={{
-                    backgroundImage: 'url(/football-hero.png)',
+                    backgroundImage: 'url(/football-hero.jpg)',
                     padding: 'var(--section-padding) 24px',
                     color: 'white'
                 }}
@@ -333,13 +333,13 @@ function LandingPage({ setView }) {
                         READY TO ELEVATE YOUR COACHING?
                     </h2>
                     <p className="body-lg mb-xlarge">
-                        Join coaches across Ireland using PáircPro to win more games.
+                        See PáircPro in action with a personalized demo from our team.
                     </p>
                     <button 
                         onClick={() => setView('contact')}
                         className="btn-outline-white"
                     >
-                        START FREE TRIAL
+                        BOOK FREE DEMO
                     </button>
                 </div>
             </section>
@@ -633,8 +633,8 @@ function ContactPage({ setView }) {
         form.append('name', formData.name);
         form.append('email', formData.email);
         form.append('message', formData.message);
-        form.append('_subject', 'PáircPro Contact Form - New Inquiry');
-        form.append('_autoresponse', 'Thanks for your interest in PáircPro! We\'ll get back to you within 24 hours.');
+        form.append('_subject', 'PáircPro Demo Request - ' + formData.name);
+        form.append('_autoresponse', 'Thank you for your interest in PáircPro! We\'ve received your demo request and will contact you within 24 hours to schedule your personalized demonstration.');
         form.append('_captcha', 'false');
         
         try {
