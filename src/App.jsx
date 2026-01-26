@@ -81,7 +81,7 @@ function LandingPage({ setView }) {
         <div>
             {/* Green CTA Bar */}
             <div className="green-cta-bar" onClick={() => setView('contact')}>
-                START YOUR FREE TRIAL
+                BOOK YOUR FREE DEMO
             </div>
 
             {/* Fixed Navigation */}
@@ -126,25 +126,45 @@ function LandingPage({ setView }) {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundImage: 'url(https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1600&q=80)',
+                    backgroundImage: 'url(https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1600&q=80)',
                     padding: '120px 24px 80px'
                 }}
             >
-                <div className="hero-content container-narrow text-center text-white">
-                    <h1 className="display-xl uppercase mb-medium">
+                <div className="hero-content container-narrow text-center" style={{color: 'white'}}>
+                    <h1 style={{
+                        fontSize: '72px',
+                        fontWeight: '900',
+                        textTransform: 'uppercase',
+                        marginBottom: '32px',
+                        color: 'white',
+                        textShadow: '0 4px 12px rgba(0,0,0,0.5)'
+                    }}>
                         ELITE GAA<br/>
                         VIDEO ANALYSIS.<br/>
                         SIMPLIFIED.
                     </h1>
                     <div className="divider-line"></div>
-                    <h2 className="heading-lg uppercase-wide mb-large">
+                    <h2 style={{
+                        fontSize: '24px',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.15em',
+                        marginBottom: '48px',
+                        color: 'white',
+                        textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                    }}>
                         PROFESSIONAL TOOLS FOR COACHES & TEAMS
                     </h2>
-                    <p className="body-lg mb-xlarge" style={{maxWidth: '600px', margin: '0 auto 64px'}}>
+                    <p className="body-lg" style={{
+                        maxWidth: '600px',
+                        margin: '0 auto 64px',
+                        color: 'white',
+                        textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                    }}>
                         Upload match footage, get instant tactical insights, and build winning game plans. Used by county teams across Ireland.
                     </p>
                     <button onClick={() => setView('contact')} className="btn-outline-white">
-                        START FREE TRIAL
+                        BOOK FREE DEMO
                     </button>
                 </div>
             </section>
@@ -343,6 +363,8 @@ function LandingPage({ setView }) {
 
 // Pricing Page Component
 function PricingPage({ setView }) {
+    const [billing, setBilling] = useState('monthly');
+    
     return (
         <div style={{minHeight: '100vh', background: 'white'}}>
             {/* Header */}
@@ -370,9 +392,41 @@ function PricingPage({ setView }) {
             <div style={{padding: '80px 24px'}}>
                 <div className="container text-center">
                     <h1 className="display-lg uppercase mb-medium">CHOOSE YOUR PLAN</h1>
-                    <p className="body-lg mb-xlarge" style={{color: 'var(--gray-mid)'}}>
-                        All plans include 30-day free trial. Cancel anytime.
+                    <p className="body-lg mb-large" style={{color: 'var(--gray-mid)'}}>
+                        Professional GAA video analysis for every level
                     </p>
+                    
+                    {/* Billing Toggle */}
+                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '48px'}}>
+                        <span style={{fontWeight: '600', color: billing === 'monthly' ? '#000' : '#999'}}>Monthly</span>
+                        <button
+                            onClick={() => setBilling(billing === 'monthly' ? 'annual' : 'monthly')}
+                            style={{
+                                width: '60px',
+                                height: '32px',
+                                background: billing === 'annual' ? '#00833E' : '#E5E5E5',
+                                border: 'none',
+                                borderRadius: '16px',
+                                position: 'relative',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s'
+                            }}
+                        >
+                            <div style={{
+                                width: '24px',
+                                height: '24px',
+                                background: 'white',
+                                borderRadius: '50%',
+                                position: 'absolute',
+                                top: '4px',
+                                left: billing === 'annual' ? '32px' : '4px',
+                                transition: 'all 0.3s'
+                            }}></div>
+                        </button>
+                        <span style={{fontWeight: '600', color: billing === 'annual' ? '#000' : '#999'}}>
+                            Annual <span style={{color: '#00833E', fontSize: '14px'}}>(Save 25%)</span>
+                        </span>
+                    </div>
 
                     {/* Plans Grid */}
                     <div style={{
@@ -383,7 +437,7 @@ function PricingPage({ setView }) {
                         margin: '0 auto 80px',
                         textAlign: 'left'
                     }}>
-                        {/* Club Plan */}
+                        {/* Coach Plan */}
                         <div style={{
                             border: '2px solid #E5E5E5',
                             borderRadius: '8px',
@@ -393,17 +447,22 @@ function PricingPage({ setView }) {
                                 COACH
                             </h3>
                             <div style={{marginBottom: '32px'}}>
+                                {billing === 'annual' && (
+                                    <div style={{fontSize: '16px', color: '#999', textDecoration: 'line-through', marginBottom: '8px'}}>
+                                        €1,164/year
+                                    </div>
+                                )}
                                 <div style={{fontSize: '48px', fontWeight: '900', marginBottom: '8px'}}>
-                                    €97
+                                    {billing === 'monthly' ? '€97' : '€873'}
                                 </div>
                                 <p style={{color: 'var(--gray-mid)', fontWeight: '600'}}>
-                                    /month
+                                    {billing === 'monthly' ? '/month' : '/year'}
                                 </p>
                             </div>
                             <ul style={{listStyle: 'none', padding: 0, marginBottom: '32px'}}>
                                 <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
                                     <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
-                                    Unlimited video uploads
+                                    50GB video storage
                                 </li>
                                 <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
                                     <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
@@ -413,21 +472,25 @@ function PricingPage({ setView }) {
                                     <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
                                     Basic analysis tools
                                 </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    GAA-specific tagging
+                                </li>
                                 <li style={{fontWeight: '400', color: 'var(--gray-mid)', display: 'flex', alignItems: 'start'}}>
                                     <span style={{marginRight: '12px'}}>✗</span>
                                     Advanced statistics
                                 </li>
                             </ul>
                             <button 
-                                onClick={() => setView('auth')}
+                                onClick={() => setView('contact')}
                                 className="btn-outline-black"
                                 style={{width: '100%'}}
                             >
-                                START FREE TRIAL
+                                BOOK DEMO
                             </button>
                         </div>
 
-                        {/* County Plan - Featured */}
+                        {/* Premium Plan - Featured */}
                         <div style={{
                             border: '3px solid var(--primary-green)',
                             borderRadius: '8px',
@@ -454,21 +517,26 @@ function PricingPage({ setView }) {
                                 PREMIUM
                             </h3>
                             <div style={{marginBottom: '32px'}}>
+                                {billing === 'annual' && (
+                                    <div style={{fontSize: '16px', color: '#999', textDecoration: 'line-through', marginBottom: '8px'}}>
+                                        €1,764/year
+                                    </div>
+                                )}
                                 <div style={{fontSize: '48px', fontWeight: '900', marginBottom: '8px'}}>
-                                    €147
+                                    {billing === 'monthly' ? '€147' : '€1,323'}
                                 </div>
                                 <p style={{color: 'var(--gray-mid)', fontWeight: '600'}}>
-                                    /month
+                                    {billing === 'monthly' ? '/month' : '/year'}
                                 </p>
                             </div>
                             <ul style={{listStyle: 'none', padding: 0, marginBottom: '32px'}}>
                                 <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
                                     <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
-                                    Everything in Club
+                                    150GB video storage
                                 </li>
                                 <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
                                     <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
-                                    Up to 15 users
+                                    Up to 10 users
                                 </li>
                                 <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
                                     <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
@@ -476,19 +544,23 @@ function PricingPage({ setView }) {
                                 </li>
                                 <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
                                     <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
-                                    Priority support
+                                    Live match analysis
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    PDF reports
                                 </li>
                             </ul>
                             <button 
-                                onClick={() => setView('auth')}
+                                onClick={() => setView('contact')}
                                 className="btn-primary"
                                 style={{width: '100%'}}
                             >
-                                START FREE TRIAL
+                                BOOK DEMO
                             </button>
                         </div>
 
-                        {/* Elite Plan */}
+                        {/* Enterprise Plan */}
                         <div style={{
                             border: '2px solid #E5E5E5',
                             borderRadius: '8px',
@@ -498,21 +570,30 @@ function PricingPage({ setView }) {
                                 ENTERPRISE
                             </h3>
                             <div style={{marginBottom: '32px'}}>
+                                {billing === 'annual' && (
+                                    <div style={{fontSize: '16px', color: '#999', textDecoration: 'line-through', marginBottom: '8px'}}>
+                                        €5,964/year
+                                    </div>
+                                )}
                                 <div style={{fontSize: '48px', fontWeight: '900', marginBottom: '8px'}}>
-                                    €497
+                                    {billing === 'monthly' ? '€497' : '€4,473'}
                                 </div>
                                 <p style={{color: 'var(--gray-mid)', fontWeight: '600'}}>
-                                    /month
+                                    {billing === 'monthly' ? '/month' : '/year'}
                                 </p>
                             </div>
                             <ul style={{listStyle: 'none', padding: 0, marginBottom: '32px'}}>
                                 <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
                                     <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
-                                    Everything in County
+                                    500GB video storage
                                 </li>
                                 <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
                                     <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
                                     Unlimited users
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    Everything in Premium
                                 </li>
                                 <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
                                     <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
@@ -528,7 +609,7 @@ function PricingPage({ setView }) {
                                 className="btn-outline-black"
                                 style={{width: '100%'}}
                             >
-                                CONTACT US
+                                BOOK DEMO
                             </button>
                         </div>
                     </div>
