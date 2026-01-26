@@ -126,7 +126,7 @@ function LandingPage({ setView }) {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundImage: 'url(https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1600&q=80)',
+                    backgroundImage: 'url(https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?w=1600&q=80)',
                     padding: '120px 24px 80px'
                 }}
             >
@@ -194,7 +194,7 @@ function LandingPage({ setView }) {
             <section 
                 className="hero-section hero-overlay-darker"
                 style={{
-                    backgroundImage: 'url(https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=1600&q=80)',
+                    backgroundImage: 'url(https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1600&q=80)',
                     padding: 'var(--section-padding) 24px',
                     color: 'white'
                 }}
