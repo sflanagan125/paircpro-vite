@@ -1,4 +1,9 @@
 function Settings({ user, setView, setActivePage }) {
+    const changePlan = () => {
+        // Stay logged in, just show pricing in modal or new tab
+        window.open('/#pricing', '_blank');
+    };
+
     return (
         <div style={{flex: 1, padding: '40px', overflowY: 'auto'}}>
             <div style={{maxWidth: '800px', margin: '0 auto'}}>
@@ -21,10 +26,10 @@ function Settings({ user, setView, setActivePage }) {
                         </div>
                         <div style={{fontSize: '14px', color: 'rgba(255,255,255,0.7)'}}>50GB Storage • 3 Users</div>
                     </div>
-                    <button onClick={() => alert('Subscription cancellation will be implemented with Stripe integration')} style={{width: '100%', padding: '12px', background: '#DC2626', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', fontFamily: 'inherit', marginBottom: '12px'}}>
+                    <button onClick={() => alert('Subscription cancellation requires Stripe integration')} style={{width: '100%', padding: '12px', background: '#DC2626', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', fontFamily: 'inherit', marginBottom: '12px'}}>
                         Cancel Subscription
                     </button>
-                    <button onClick={() => setView('pricing')} style={{width: '100%', padding: '12px', background: 'white', border: 'none', color: '#00833E', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', fontFamily: 'inherit'}}>
+                    <button onClick={changePlan} style={{width: '100%', padding: '12px', background: 'white', border: 'none', color: '#00833E', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', fontFamily: 'inherit'}}>
                         Change Plan
                     </button>
                 </div>
