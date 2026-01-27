@@ -507,22 +507,52 @@ function Dashboard({ user, setView, setUser }) {
                             </div>
                         </div>
                         
-                        {currentMatch && events.length > 0 && (
+                        {currentMatch && (
                             <div style={{background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '32px'}}>
                                 <h2 style={{fontSize: '24px', fontWeight: '700', color: 'white', marginBottom: '24px'}}>Latest Match: {homeTeam} vs {awayTeam}</h2>
                                 <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px'}}>
-                                    {/* Event Distribution Chart */}
                                     <div>
                                         <div style={{fontSize: '16px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700'}}>Event Distribution</div>
                                         <div style={{height: '300px', background: 'white', borderRadius: '8px', padding: '20px'}}>
-                                            <canvas id="eventChart" style={{maxHeight: '260px'}}></canvas>
+                                            {Object.entries(events.reduce((acc, e) => { acc[e.label] = (acc[e.label] || 0) + 1; return acc; }, {})).map(([label, count]) => (
+                                                <div key={label} style={{display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #eee'}}>
+                                                    <span style={{fontWeight: '600'}}>{label}</span>
+                                                    <span style={{fontWeight: '700', color: '#00833E'}}>{count}</span>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
-                                    {/* Team Performance Chart */}
                                     <div>
                                         <div style={{fontSize: '16px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700'}}>Team Performance</div>
                                         <div style={{height: '300px', background: 'white', borderRadius: '8px', padding: '20px'}}>
-                                            <canvas id="performanceChart" style={{maxHeight: '260px'}}></canvas>
+                                            <div style={{marginBottom: '20px'}}>
+                                                <div style={{fontSize: '12px', color: '#666', marginBottom: '4px'}}>Goals</div>
+                                                <div style={{display: 'flex', gap: '8px'}}>
+                                                    <div style={{flex: stats.homeGoals, background: '#00833E', height: '24px', borderRadius: '4px', minWidth: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '12px', fontWeight: '700'}}>{stats.homeGoals}</div>
+                                                    <div style={{flex: stats.awayGoals, background: '#006030', height: '24px', borderRadius: '4px', minWidth: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '12px', fontWeight: '700'}}>{stats.awayGoals}</div>
+                                                </div>
+                                            </div>
+                                            <div style={{marginBottom: '20px'}}>
+                                                <div style={{fontSize: '12px', color: '#666', marginBottom: '4px'}}>Points</div>
+                                                <div style={{display: 'flex', gap: '8px'}}>
+                                                    <div style={{flex: stats.homePoints, background: '#00833E', height: '24px', borderRadius: '4px', minWidth: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '12px', fontWeight: '700'}}>{stats.homePoints}</div>
+                                                    <div style={{flex: stats.awayPoints, background: '#006030', height: '24px', borderRadius: '4px', minWidth: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '12px', fontWeight: '700'}}>{stats.awayPoints}</div>
+                                                </div>
+                                            </div>
+                                            <div style={{marginBottom: '20px'}}>
+                                                <div style={{fontSize: '12px', color: '#666', marginBottom: '4px'}}>Fouls</div>
+                                                <div style={{display: 'flex', gap: '8px'}}>
+                                                    <div style={{flex: stats.homeFouls || 0.5, background: '#00833E', height: '24px', borderRadius: '4px', minWidth: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '12px', fontWeight: '700'}}>{stats.homeFouls}</div>
+                                                    <div style={{flex: stats.awayFouls || 0.5, background: '#006030', height: '24px', borderRadius: '4px', minWidth: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '12px', fontWeight: '700'}}>{stats.awayFouls}</div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div style={{fontSize: '12px', color: '#666', marginBottom: '4px'}}>Wides</div>
+                                                <div style={{display: 'flex', gap: '8px'}}>
+                                                    <div style={{flex: stats.homeWides || 0.5, background: '#00833E', height: '24px', borderRadius: '4px', minWidth: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '12px', fontWeight: '700'}}>{stats.homeWides}</div>
+                                                    <div style={{flex: stats.awayWides || 0.5, background: '#006030', height: '24px', borderRadius: '4px', minWidth: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '12px', fontWeight: '700'}}>{stats.awayWides}</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -531,83 +561,6 @@ function Dashboard({ user, setView, setUser }) {
                                 </button>
                             </div>
                         )}
-                        
-                        {/* Load Chart.js and render charts */}
-                        {currentMatch && events.length > 0 && (() => {
-                            setTimeout(() => {
-                                if (typeof Chart === 'undefined') {
-                                    const script = document.createElement('script');
-                                    script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
-                                    script.onload = () => renderCharts();
-                                    document.head.appendChild(script);
-                                } else {
-                                    renderCharts();
-                                }
-                                
-                                function renderCharts() {
-                                    const eventTypes = {};
-                                    events.forEach(e => {
-                                        eventTypes[e.label] = (eventTypes[e.label] || 0) + 1;
-                                    });
-                                    
-                                    // Event Distribution Pie Chart
-                                    const ctx1 = document.getElementById('eventChart');
-                                    if (ctx1 && !ctx1.chart) {
-                                        ctx1.chart = new Chart(ctx1, {
-                                            type: 'pie',
-                                            data: {
-                                                labels: Object.keys(eventTypes),
-                                                datasets: [{
-                                                    data: Object.values(eventTypes),
-                                                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#fbbf24', '#dc2626']
-                                                }]
-                                            },
-                                            options: {
-                                                responsive: true,
-                                                maintainAspectRatio: false,
-                                                plugins: {
-                                                    legend: { position: 'bottom' }
-                                                }
-                                            }
-                                        });
-                                    }
-                                    
-                                    // Team Performance Bar Chart
-                                    const ctx2 = document.getElementById('performanceChart');
-                                    if (ctx2 && !ctx2.chart) {
-                                        ctx2.chart = new Chart(ctx2, {
-                                            type: 'bar',
-                                            data: {
-                                                labels: ['Goals', 'Points', 'Fouls', 'Wides'],
-                                                datasets: [
-                                                    {
-                                                        label: homeTeam,
-                                                        data: [stats.homeGoals, stats.homePoints, stats.homeFouls, stats.homeWides],
-                                                        backgroundColor: '#00833E'
-                                                    },
-                                                    {
-                                                        label: awayTeam,
-                                                        data: [stats.awayGoals, stats.awayPoints, stats.awayFouls, stats.awayWides],
-                                                        backgroundColor: '#006030'
-                                                    }
-                                                ]
-                                            },
-                                            options: {
-                                                responsive: true,
-                                                maintainAspectRatio: false,
-                                                plugins: {
-                                                    legend: { position: 'top' }
-                                                },
-                                                scales: {
-                                                    y: { beginAtZero: true }
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            }, 100);
-                            return null;
-                        })()}
                     </div>
                 </div>
             )}
