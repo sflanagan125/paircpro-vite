@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase client
@@ -909,13 +909,97 @@ function AuthPage({ setView, setUser }) {
 }
 
 // Dashboard Component
+// COMPLETE VIDEO ANALYSIS DASHBOARD
 function Dashboard({ user, setView, setUser }) {
-    const [activeTab, setActiveTab] = useState('upload');
-    const [videoFile, setVideoFile] = useState(null);
+    // Video & Match State
+    const videoRef = useRef(null);
     const [videoUrl, setVideoUrl] = useState('');
-    const [uploading, setUploading] = useState(false);
-    const [matches, setMatches] = useState([]);
+    const [videoFile, setVideoFile] = useState(null);
     const [currentMatch, setCurrentMatch] = useState(null);
+    const [matches, setMatches] = useState([]);
+    const [uploading, setUploading] = useState(false);
+    
+    // Teams & Sport
+    const [sport, setSport] = useState('football');
+    const [homeTeam, setHomeTeam] = useState('Home Team');
+    const [awayTeam, setAwayTeam] = useState('Away Team');
+    
+    // Scores
+    const [homeGoals, setHomeGoals] = useState(0);
+    const [homePoints, setHomePoints] = useState(0);
+    const [awayGoals, setAwayGoals] = useState(0);
+    const [awayPoints, setAwayPoints] = useState(0);
+    
+    // Events
+    const [events, setEvents] = useState([]);
+    
+    // Video Player State
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [playbackSpeed, setPlaybackSpeed] = useState(1);
+    
+    // UI State
+    const [activeTab, setActiveTab] = useState('upload');
+    const [selectedTeam, setSelectedTeam] = useState('home');
+    
+    // Event Types Configuration
+    const eventTypes = {
+        football: {
+            scoring: [
+                { id: 'goal', label: 'Goal', color: '#10b981', points: 3 },
+                { id: 'point', label: 'Point', color: '#f59e0b', points: 1 },
+                { id: '2point', label: '2 Point', color: '#8b5cf6', points: 2 },
+                { id: 'wide', label: 'Wide', color: '#ef4444', points: 0 }
+            ],
+            setpieces: [
+                { id: 'free', label: 'Free Kick', color: '#06b6d4' },
+                { id: '45', label: '45', color: '#3b82f6' },
+                { id: 'penalty', label: 'Penalty', color: '#ec4899' },
+                { id: 'sideline', label: 'Sideline', color: '#14b8a6' }
+            ],
+            possession: [
+                { id: 'kickout_own_won', label: 'Own Kickout Won', color: '#10b981' },
+                { id: 'kickout_own_lost', label: 'Own Kickout Lost', color: '#ef4444' },
+                { id: 'kickout_opp_won', label: 'Opp Kickout Won', color: '#10b981' },
+                { id: 'kickout_opp_lost', label: 'Opp Kickout Lost', color: '#ef4444' }
+            ],
+            discipline: [
+                { id: 'foul', label: 'Foul', color: '#f97316' },
+                { id: 'yellow', label: 'Yellow Card', color: '#fbbf24' },
+                { id: 'black', label: 'Black Card', color: '#000000' },
+                { id: 'red', label: 'Red Card', color: '#dc2626' }
+            ],
+            other: [
+                { id: 'substitution', label: 'Substitution', color: '#6366f1' },
+                { id: 'turnover', label: 'Turnover', color: '#f43f5e' }
+            ]
+        },
+        hurling: {
+            scoring: [
+                { id: 'goal', label: 'Goal', color: '#10b981', points: 3 },
+                { id: 'point', label: 'Point', color: '#f59e0b', points: 1 },
+                { id: 'wide', label: 'Wide', color: '#ef4444', points: 0 }
+            ],
+            setpieces: [
+                { id: 'free', label: 'Free', color: '#06b6d4' },
+                { id: '65', label: '65', color: '#3b82f6' },
+                { id: 'penalty', label: 'Penalty', color: '#ec4899' },
+                { id: 'sideline', label: 'Sideline', color: '#14b8a6' }
+            ],
+            discipline: [
+                { id: 'foul', label: 'Foul', color: '#f97316' },
+                { id: 'yellow', label: 'Yellow Card', color: '#fbbf24' },
+                { id: 'red', label: 'Red Card', color: '#dc2626' }
+            ],
+            other: [
+                { id: 'substitution', label: 'Substitution', color: '#6366f1' },
+                { id: 'turnover', label: 'Turnover', color: '#f43f5e' }
+            ]
+        }
+    };
+    
+    const currentEvents = eventTypes[sport];
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
@@ -929,7 +1013,6 @@ function Dashboard({ user, setView, setUser }) {
         
         setUploading(true);
         try {
-            // Upload to Supabase storage
             const fileName = `${user.id}/${Date.now()}-${file.name}`;
             const { data, error } = await supabase.storage
                 .from('videos')
@@ -937,7 +1020,6 @@ function Dashboard({ user, setView, setUser }) {
 
             if (error) throw error;
 
-            // Get public URL
             const { data: { publicUrl } } = supabase.storage
                 .from('videos')
                 .getPublicUrl(fileName);
@@ -945,13 +1027,18 @@ function Dashboard({ user, setView, setUser }) {
             setVideoUrl(publicUrl);
             setVideoFile(file);
             
-            // Save match record
             const { data: matchData } = await supabase
                 .from('matches')
                 .insert([{
                     user_id: user.id,
                     video_url: publicUrl,
                     title: file.name,
+                    home_team: homeTeam,
+                    away_team: awayTeam,
+                    sport: sport,
+                    home_score: 0,
+                    away_score: 0,
+                    events: [],
                     created_at: new Date()
                 }])
                 .select()
@@ -966,50 +1053,159 @@ function Dashboard({ user, setView, setUser }) {
         }
     };
 
+    const tagEvent = async (eventType, team) => {
+        if (!videoRef || !videoRef.current) return;
+        
+        const timestamp = videoRef.current.currentTime;
+        const event = {
+            id: Date.now(),
+            type: eventType.id,
+            label: eventType.label,
+            color: eventType.color,
+            team: team,
+            timestamp: timestamp,
+            sport: sport
+        };
+        
+        const newEvents = [...events, event].sort((a, b) => a.timestamp - b.timestamp);
+        setEvents(newEvents);
+        
+        // Update scores
+        if (eventType.points !== undefined) {
+            if (team === 'home') {
+                if (eventType.id === 'goal') setHomeGoals(homeGoals + 1);
+                else if (eventType.id === 'point') setHomePoints(homePoints + 1);
+                else if (eventType.id === '2point') setHomePoints(homePoints + 2);
+            } else {
+                if (eventType.id === 'goal') setAwayGoals(awayGoals + 1);
+                else if (eventType.id === 'point') setAwayPoints(awayPoints + 1);
+                else if (eventType.id === '2point') setAwayPoints(awayPoints + 2);
+            }
+        }
+        
+        // Save to database
+        if (currentMatch) {
+            await supabase
+                .from('matches')
+                .update({ events: newEvents })
+                .eq('id', currentMatch.id);
+        }
+    };
+
+    const seekToEvent = (timestamp) => {
+        if (videoRef && videoRef.current) {
+            videoRef.current.currentTime = timestamp;
+            videoRef.current.play();
+            setIsPlaying(true);
+        }
+    };
+
+    const deleteEvent = async (eventId) => {
+        const newEvents = events.filter(e => e.id !== eventId);
+        setEvents(newEvents);
+        
+        if (currentMatch) {
+            await supabase
+                .from('matches')
+                .update({ events: newEvents })
+                .eq('id', currentMatch.id);
+        }
+    };
+
+    const togglePlayPause = () => {
+        if (!videoRef || !videoRef.current) return;
+        
+        if (isPlaying) {
+            videoRef.current.pause();
+            setIsPlaying(false);
+        } else {
+            videoRef.current.play();
+            setIsPlaying(true);
+        }
+    };
+
+    const skipTime = (seconds) => {
+        if (videoRef && videoRef.current) {
+            videoRef.current.currentTime = Math.max(0, Math.min(duration, currentTime + seconds));
+        }
+    };
+
+    const changeSpeed = (speed) => {
+        if (videoRef && videoRef.current) {
+            videoRef.current.playbackRate = speed;
+            setPlaybackSpeed(speed);
+        }
+    };
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    useEffect(() => {
+        const loadMatches = async () => {
+            const { data } = await supabase
+                .from('matches')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+            
+            if (data) setMatches(data);
+        };
+        loadMatches();
+    }, [user.id]);
+
+    useEffect(() => {
+        if (videoRef && videoRef.current) {
+            const video = videoRef.current;
+            
+            const handleLoadedMetadata = () => {
+                setDuration(video.duration);
+            };
+            
+            const handleTimeUpdate = () => {
+                setCurrentTime(video.currentTime);
+            };
+            
+            video.addEventListener('loadedmetadata', handleLoadedMetadata);
+            video.addEventListener('timeupdate', handleTimeUpdate);
+            
+            return () => {
+                video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+                video.removeEventListener('timeupdate', handleTimeUpdate);
+            };
+        }
+    }, [videoUrl]);
+
     return (
-        <div style={{minHeight: '100vh', background: 'linear-gradient(135deg, #00833E 0%, #006030 100%)'}}>
-            {/* Header */}
-            <header style={{background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.1)'}}>
-                <div style={{maxWidth: '1400px', margin: '0 auto', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-                        <svg width="32" height="32" viewBox="0 0 32 32">
-                            <rect width="32" height="32" rx="8" fill="white"/>
-                            <circle cx="16" cy="16" r="8" fill="#00833E"/>
-                            <path d="M12 16 L16 12 L20 16 L16 20 Z" fill="white"/>
-                        </svg>
-                        <span style={{fontSize: '20px', fontWeight: '800', textTransform: 'uppercase', color: 'white'}}>PÁIRCPRO</span>
-                    </div>
-                    <button
-                        onClick={handleSignOut}
-                        style={{
-                            background: 'transparent',
-                            border: '1px solid rgba(255,255,255,0.3)',
-                            color: 'white',
-                            padding: '8px 16px',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            textTransform: 'uppercase',
-                            fontFamily: 'inherit'
-                        }}
-                    >
-                        SIGN OUT
-                    </button>
+        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(135deg, #00833E 0%, #006030 100%)'}}>
+            {/* Top Bar */}
+            <div style={{background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                <div style={{display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer'}} onClick={() => setView('landing')}>
+                    <svg width="32" height="32" viewBox="0 0 32 32">
+                        <rect width="32" height="32" rx="8" fill="white"/>
+                        <circle cx="16" cy="16" r="8" fill="#00833E"/>
+                    </svg>
+                    <span style={{fontSize: '20px', fontWeight: '800', color: 'white', textTransform: 'uppercase'}}>PÁIRCPRO</span>
                 </div>
-            </header>
+                <button onClick={handleSignOut} style={{background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit'}}>
+                    SIGN OUT
+                </button>
+            </div>
 
-            {/* Main Content */}
-            <div style={{display: 'flex', height: 'calc(100vh - 65px)'}}>
+            {/* Main Container */}
+            <div style={{flex: 1, display: 'flex', overflow: 'hidden'}}>
                 {/* Sidebar */}
-                <div style={{width: '240px', background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,255,255,0.1)', padding: '24px 16px'}}>
-                    <div style={{marginBottom: '32px'}}>
-                        <div style={{fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px'}}>Analysis</div>
+                <div style={{width: '200px', background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,255,255,0.1)', padding: '24px 16px', overflowY: 'auto'}}>
+                    <div style={{fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: '700', textTransform: 'uppercase', marginBottom: '12px'}}>ANALYSIS</div>
+                    {['upload', 'matches', 'analysis'].map(tab => (
                         <button
-                            onClick={() => setActiveTab('upload')}
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
                             style={{
                                 width: '100%',
-                                background: activeTab === 'upload' ? 'rgba(255,255,255,0.15)' : 'transparent',
+                                background: activeTab === tab ? 'rgba(255,255,255,0.15)' : 'transparent',
                                 border: 'none',
                                 color: 'white',
                                 padding: '12px 16px',
@@ -1019,101 +1215,100 @@ function Dashboard({ user, setView, setUser }) {
                                 fontWeight: '600',
                                 fontSize: '14px',
                                 marginBottom: '8px',
-                                fontFamily: 'inherit'
+                                fontFamily: 'inherit',
+                                textTransform: 'capitalize'
                             }}
                         >
-                            🎥 Video Upload
+                            {tab === 'upload' && '🎥 '} {tab === 'matches' && '📁 '} {tab === 'analysis' && '⚡ '} {tab}
                         </button>
-                        <button
-                            onClick={() => setActiveTab('matches')}
-                            style={{
-                                width: '100%',
-                                background: activeTab === 'matches' ? 'rgba(255,255,255,0.15)' : 'transparent',
-                                border: 'none',
-                                color: 'white',
-                                padding: '12px 16px',
-                                borderRadius: '8px',
-                                textAlign: 'left',
-                                cursor: 'pointer',
-                                fontWeight: '600',
-                                fontSize: '14px',
-                                marginBottom: '8px',
-                                fontFamily: 'inherit'
-                            }}
-                        >
-                            📁 My Matches
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('analysis')}
-                            style={{
-                                width: '100%',
-                                background: activeTab === 'analysis' ? 'rgba(255,255,255,0.15)' : 'transparent',
-                                border: 'none',
-                                color: 'white',
-                                padding: '12px 16px',
-                                borderRadius: '8px',
-                                textAlign: 'left',
-                                cursor: 'pointer',
-                                fontWeight: '600',
-                                fontSize: '14px',
-                                fontFamily: 'inherit'
-                            }}
-                        >
-                            ⚡ Analysis
-                        </button>
-                    </div>
+                    ))}
                 </div>
 
-                {/* Main Area */}
-                <div style={{flex: 1, padding: '32px', overflowY: 'auto'}}>
+                {/* Main Content Area */}
+                <div style={{flex: 1, padding: '24px', overflowY: 'auto'}}>
+                    {/* UPLOAD TAB */}
                     {activeTab === 'upload' && (
                         <div style={{maxWidth: '800px', margin: '0 auto'}}>
-                            <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '16px', textTransform: 'uppercase'}}>Upload Match Video</h1>
-                            <p style={{color: 'rgba(255,255,255,0.8)', fontSize: '18px', marginBottom: '48px'}}>
-                                Upload GAA match footage to begin your analysis
-                            </p>
+                            <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '32px', textTransform: 'uppercase'}}>Upload Match Video</h1>
                             
-                            <div style={{
-                                background: 'rgba(255,255,255,0.1)',
-                                backdropFilter: 'blur(20px)',
-                                border: '2px dashed rgba(255,255,255,0.3)',
-                                borderRadius: '16px',
-                                padding: '64px 32px',
-                                textAlign: 'center'
-                            }}>
-                                <input
-                                    type="file"
-                                    accept="video/*"
-                                    onChange={handleVideoUpload}
-                                    disabled={uploading}
-                                    style={{display: 'none'}}
-                                    id="video-upload"
-                                />
-                                <label
-                                    htmlFor="video-upload"
+                            {/* Sport Selector */}
+                            <div style={{display: 'flex', gap: '12px', marginBottom: '32px'}}>
+                                <button
+                                    onClick={() => setSport('football')}
                                     style={{
-                                        cursor: uploading ? 'not-allowed' : 'pointer',
-                                        display: 'block'
+                                        flex: 1,
+                                        padding: '16px',
+                                        background: sport === 'football' ? 'white' : 'rgba(255,255,255,0.1)',
+                                        color: sport === 'football' ? '#00833E' : 'white',
+                                        border: '2px solid ' + (sport === 'football' ? 'white' : 'rgba(255,255,255,0.3)'),
+                                        borderRadius: '12px',
+                                        cursor: 'pointer',
+                                        fontSize: '16px',
+                                        fontWeight: '700',
+                                        fontFamily: 'inherit',
+                                        textTransform: 'uppercase'
                                     }}
                                 >
+                                    FOOTBALL
+                                </button>
+                                <button
+                                    onClick={() => setSport('hurling')}
+                                    style={{
+                                        flex: 1,
+                                        padding: '16px',
+                                        background: sport === 'hurling' ? 'white' : 'rgba(255,255,255,0.1)',
+                                        color: sport === 'hurling' ? '#00833E' : 'white',
+                                        border: '2px solid ' + (sport === 'hurling' ? 'white' : 'rgba(255,255,255,0.3)'),
+                                        borderRadius: '12px',
+                                        cursor: 'pointer',
+                                        fontSize: '16px',
+                                        fontWeight: '700',
+                                        fontFamily: 'inherit',
+                                        textTransform: 'uppercase'
+                                    }}
+                                >
+                                    HURLING
+                                </button>
+                            </div>
+                            
+                            {/* Team Names */}
+                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px'}}>
+                                <div>
+                                    <label style={{display: 'block', color: 'white', fontWeight: '600', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase'}}>Home Team</label>
+                                    <input
+                                        type="text"
+                                        value={homeTeam}
+                                        onChange={(e) => setHomeTeam(e.target.value)}
+                                        style={{width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '16px', fontFamily: 'inherit'}}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{display: 'block', color: 'white', fontWeight: '600', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase'}}>Away Team</label>
+                                    <input
+                                        type="text"
+                                        value={awayTeam}
+                                        onChange={(e) => setAwayTeam(e.target.value)}
+                                        style={{width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '16px', fontFamily: 'inherit'}}
+                                    />
+                                </div>
+                            </div>
+                            
+                            {/* Upload Area */}
+                            <div style={{background: 'rgba(255,255,255,0.1)', border: '2px dashed rgba(255,255,255,0.3)', borderRadius: '16px', padding: '64px 32px', textAlign: 'center'}}>
+                                <input type="file" accept="video/*" onChange={handleVideoUpload} disabled={uploading} style={{display: 'none'}} id="video-upload" />
+                                <label htmlFor="video-upload" style={{cursor: uploading ? 'not-allowed' : 'pointer', display: 'block'}}>
                                     <div style={{fontSize: '64px', marginBottom: '24px'}}>🎥</div>
                                     <h3 style={{color: 'white', fontSize: '24px', fontWeight: '700', marginBottom: '12px'}}>
                                         {uploading ? 'Uploading...' : 'Click to Upload Video'}
                                     </h3>
-                                    <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '16px'}}>
-                                        MP4, MOV, AVI • Max 2GB
-                                    </p>
+                                    <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '16px'}}>MP4, MOV, AVI • Max 2GB</p>
                                 </label>
                             </div>
 
                             {videoFile && (
                                 <div style={{marginTop: '32px', padding: '24px', background: 'rgba(255,255,255,0.1)', borderRadius: '12px'}}>
-                                    <p style={{color: 'white', fontWeight: '600', marginBottom: '8px'}}>✓ Uploaded: {videoFile.name}</p>
-                                    <button
-                                        onClick={() => setActiveTab('analysis')}
-                                        className="btn-primary"
-                                        style={{marginTop: '16px'}}
-                                    >
+                                    <p style={{color: 'white', fontWeight: '600', marginBottom: '16px'}}>✓ Uploaded: {videoFile.name}</p>
+                                    <button onClick={() => setActiveTab('analysis')} style={{background: 'white', color: '#00833E', padding: '12px 24px', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit'}}>
                                         START ANALYSIS
                                     </button>
                                 </div>
@@ -1121,108 +1316,189 @@ function Dashboard({ user, setView, setUser }) {
                         </div>
                     )}
 
+                    {/* MATCHES TAB */}
                     {activeTab === 'matches' && (
                         <div>
                             <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '32px', textTransform: 'uppercase'}}>My Matches</h1>
-                            <div style={{
-                                background: 'rgba(255,255,255,0.1)',
-                                backdropFilter: 'blur(20px)',
-                                borderRadius: '12px',
-                                padding: '48px',
-                                textAlign: 'center'
-                            }}>
-                                <p style={{color: 'rgba(255,255,255,0.8)', fontSize: '18px'}}>
-                                    No matches yet. Upload your first video to get started!
-                                </p>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'analysis' && (
-                        <div>
-                            <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '32px', textTransform: 'uppercase'}}>Video Analysis</h1>
-                            
-                            {videoUrl ? (
-                                <div style={{
-                                    background: 'rgba(0,0,0,0.3)',
-                                    backdropFilter: 'blur(20px)',
-                                    borderRadius: '16px',
-                                    padding: '24px',
-                                    border: '1px solid rgba(255,255,255,0.1)'
-                                }}>
-                                    <video
-                                        controls
-                                        style={{width: '100%', borderRadius: '12px', marginBottom: '24px'}}
-                                        src={videoUrl}
-                                    />
-                                    
-                                    {/* Analysis Tools */}
-                                    <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '24px'}}>
-                                        <div style={{
-                                            background: 'rgba(255,255,255,0.05)',
-                                            padding: '20px',
-                                            borderRadius: '12px',
-                                            border: '1px solid rgba(255,255,255,0.1)'
-                                        }}>
-                                            <div style={{fontSize: '32px', marginBottom: '8px'}}>⚽</div>
-                                            <h3 style={{color: 'white', fontSize: '16px', fontWeight: '700', marginBottom: '4px'}}>Tag Events</h3>
-                                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '13px'}}>Mark goals, points, fouls</p>
+                            {matches.length > 0 ? (
+                                <div style={{display: 'grid', gap: '16px'}}>
+                                    {matches.map(match => (
+                                        <div
+                                            key={match.id}
+                                            onClick={() => {
+                                                setCurrentMatch(match);
+                                                setVideoUrl(match.video_url);
+                                                setHomeTeam(match.home_team || 'Home Team');
+                                                setAwayTeam(match.away_team || 'Away Team');
+                                                setEvents(match.events || []);
+                                                setSport(match.sport || 'football');
+                                                setHomeGoals(Math.floor((match.home_score || 0) / 3));
+                                                setHomePoints((match.home_score || 0) % 3);
+                                                setAwayGoals(Math.floor((match.away_score || 0) / 3));
+                                                setAwayPoints((match.away_score || 0) % 3);
+                                                setActiveTab('analysis');
+                                            }}
+                                            style={{background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '24px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)'}}
+                                        >
+                                            <h3 style={{color: 'white', fontSize: '20px', fontWeight: '700', marginBottom: '8px'}}>{match.title}</h3>
+                                            <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '14px'}}>
+                                                {new Date(match.created_at).toLocaleDateString()} • {(match.events || []).length} events • {match.sport}
+                                            </p>
                                         </div>
-                                        
-                                        <div style={{
-                                            background: 'rgba(255,255,255,0.05)',
-                                            padding: '20px',
-                                            borderRadius: '12px',
-                                            border: '1px solid rgba(255,255,255,0.1)'
-                                        }}>
-                                            <div style={{fontSize: '32px', marginBottom: '8px'}}>📊</div>
-                                            <h3 style={{color: 'white', fontSize: '16px', fontWeight: '700', marginBottom: '4px'}}>Statistics</h3>
-                                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '13px'}}>Track possessions, shots</p>
-                                        </div>
-                                        
-                                        <div style={{
-                                            background: 'rgba(255,255,255,0.05)',
-                                            padding: '20px',
-                                            borderRadius: '12px',
-                                            border: '1px solid rgba(255,255,255,0.1)'
-                                        }}>
-                                            <div style={{fontSize: '32px', marginBottom: '8px'}}>🔥</div>
-                                            <h3 style={{color: 'white', fontSize: '16px', fontWeight: '700', marginBottom: '4px'}}>Heat Maps</h3>
-                                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '13px'}}>Visualize positioning</p>
-                                        </div>
-                                        
-                                        <div style={{
-                                            background: 'rgba(255,255,255,0.05)',
-                                            padding: '20px',
-                                            borderRadius: '12px',
-                                            border: '1px solid rgba(255,255,255,0.1)'
-                                        }}>
-                                            <div style={{fontSize: '32px', marginBottom: '8px'}}>✂️</div>
-                                            <h3 style={{color: 'white', fontSize: '16px', fontWeight: '700', marginBottom: '4px'}}>Create Clips</h3>
-                                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '13px'}}>Export highlights</p>
-                                        </div>
-                                    </div>
+                                    ))}
                                 </div>
                             ) : (
-                                <div style={{
-                                    background: 'rgba(255,255,255,0.1)',
-                                    backdropFilter: 'blur(20px)',
-                                    borderRadius: '12px',
-                                    padding: '48px',
-                                    textAlign: 'center'
-                                }}>
-                                    <p style={{color: 'rgba(255,255,255,0.8)', fontSize: '18px', marginBottom: '24px'}}>
-                                        Upload a video to start your analysis
-                                    </p>
-                                    <button
-                                        onClick={() => setActiveTab('upload')}
-                                        className="btn-primary"
-                                    >
+                                <div style={{background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '48px', textAlign: 'center'}}>
+                                    <p style={{color: 'rgba(255,255,255,0.8)', fontSize: '18px', marginBottom: '24px'}}>No matches yet</p>
+                                    <button onClick={() => setActiveTab('upload')} style={{background: 'white', color: '#00833E', padding: '12px 24px', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit'}}>
                                         UPLOAD VIDEO
                                     </button>
                                 </div>
                             )}
                         </div>
+                    )}
+
+                    {/* ANALYSIS TAB */}
+                    {activeTab === 'analysis' && (
+                        videoUrl ? (
+                            <div style={{display: 'grid', gridTemplateColumns: '1fr 360px', gap: '24px', height: 'calc(100vh - 120px)'}}>
+                                {/* Left Column - Video & Controls */}
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
+                                    {/* Video Player */}
+                                    <div style={{background: 'rgba(0,0,0,0.3)', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)'}}>
+                                        <video
+                                            ref={(ref) => { if (ref) { videoRef.current = ref; } }}
+                                            src={videoUrl}
+                                            style={{width: '100%', display: 'block'}}
+                                        />
+                                    </div>
+
+                                    {/* Video Controls */}
+                                    <div style={{background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.1)'}}>
+                                        <div style={{display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px'}}>
+                                            <button onClick={togglePlayPause} style={{width: '48px', height: '48px', borderRadius: '50%', background: 'white', border: 'none', color: '#00833E', cursor: 'pointer', fontSize: '18px', fontWeight: '700'}}>
+                                                {isPlaying ? '⏸' : '▶'}
+                                            </button>
+                                            <button onClick={() => skipTime(-5)} style={{background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit'}}>
+                                                -5s
+                                            </button>
+                                            <button onClick={() => skipTime(5)} style={{background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit'}}>
+                                                +5s
+                                            </button>
+                                            <div style={{color: 'white', fontFamily: 'monospace', fontSize: '16px', fontWeight: '600'}}>
+                                                {formatTime(currentTime)} / {formatTime(duration)}
+                                            </div>
+                                            <select value={playbackSpeed} onChange={(e) => changeSpeed(parseFloat(e.target.value))} style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px', borderRadius: '8px', fontFamily: 'inherit'}}>
+                                                <option value="0.25">0.25x</option>
+                                                <option value="0.5">0.5x</option>
+                                                <option value="0.75">0.75x</option>
+                                                <option value="1">1x</option>
+                                                <option value="1.25">1.25x</option>
+                                                <option value="1.5">1.5x</option>
+                                                <option value="2">2x</option>
+                                            </select>
+                                        </div>
+                                        
+                                        {/* Progress Bar */}
+                                        <div style={{height: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px', cursor: 'pointer', position: 'relative'}}>
+                                            <div style={{height: '100%', background: 'white', borderRadius: '4px', width: `${(currentTime / duration) * 100}%`}}></div>
+                                        </div>
+                                    </div>
+
+                                    {/* Scoreboard */}
+                                    <div style={{background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '24px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-around'}}>
+                                        <div style={{textAlign: 'center'}}>
+                                            <div style={{color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600'}}>{homeTeam}</div>
+                                            <div style={{color: 'white', fontSize: '48px', fontWeight: '900'}}>{homeGoals}-{homePoints}</div>
+                                        </div>
+                                        <div style={{color: 'rgba(255,255,255,0.6)', fontSize: '24px', fontWeight: '600', alignSelf: 'center'}}>VS</div>
+                                        <div style={{textAlign: 'center'}}>
+                                            <div style={{color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600'}}>{awayTeam}</div>
+                                            <div style={{color: 'white', fontSize: '48px', fontWeight: '900'}}>{awayGoals}-{awayPoints}</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Event Tagging */}
+                                    <div style={{background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '24px', border: '1px solid rgba(255,255,255,0.1)'}}>
+                                        {/* Team Selector */}
+                                        <div style={{display: 'flex', gap: '12px', marginBottom: '24px'}}>
+                                            <button onClick={() => setSelectedTeam('home')} style={{flex: 1, padding: '12px', background: selectedTeam === 'home' ? 'white' : 'rgba(255,255,255,0.1)', color: selectedTeam === 'home' ? '#00833E' : 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase'}}>
+                                                {homeTeam}
+                                            </button>
+                                            <button onClick={() => setSelectedTeam('away')} style={{flex: 1, padding: '12px', background: selectedTeam === 'away' ? 'white' : 'rgba(255,255,255,0.1)', color: selectedTeam === 'away' ? '#00833E' : 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase'}}>
+                                                {awayTeam}
+                                            </button>
+                                        </div>
+                                        
+                                        {/* Event Buttons */}
+                                        {Object.entries(currentEvents).map(([category, eventList]) => (
+                                            <div key={category} style={{marginBottom: '20px'}}>
+                                                <div style={{color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', marginBottom: '12px'}}>{category}</div>
+                                                <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px'}}>
+                                                    {eventList.map(event => (
+                                                        <button
+                                                            key={event.id}
+                                                            onClick={() => tagEvent(event, selectedTeam)}
+                                                            style={{
+                                                                background: event.color,
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                padding: '10px',
+                                                                borderRadius: '8px',
+                                                                cursor: 'pointer',
+                                                                fontSize: '13px',
+                                                                fontWeight: '600',
+                                                                fontFamily: 'inherit'
+                                                            }}
+                                                        >
+                                                            {event.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Right Column - Events Timeline */}
+                                <div style={{background: 'rgba(0,0,0,0.3)', borderRadius: '16px', padding: '24px', border: '1px solid rgba(255,255,255,0.1)', overflowY: 'auto'}}>
+                                    <h3 style={{color: 'white', fontSize: '20px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase'}}>Events ({events.length})</h3>
+                                    {events.length > 0 ? (
+                                        <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+                                            {events.slice().reverse().map(event => (
+                                                <div key={event.id} style={{background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px', cursor: 'pointer', border: `1px solid ${event.color}20`}}>
+                                                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                                                        <div style={{color: 'white', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                                            <div style={{width: '12px', height: '12px', borderRadius: '50%', background: event.color}}></div>
+                                                            {event.label}
+                                                        </div>
+                                                        <button onClick={(e) => { e.stopPropagation(); deleteEvent(event.id); }} style={{background: 'rgba(255,0,0,0.2)', border: 'none', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px'}}>✕</button>
+                                                    </div>
+                                                    <div style={{color: 'rgba(255,255,255,0.6)', fontSize: '12px', marginBottom: '4px'}}>{event.team === 'home' ? homeTeam : awayTeam}</div>
+                                                    <button
+                                                        onClick={() => seekToEvent(event.timestamp)}
+                                                        style={{background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontFamily: 'monospace', cursor: 'pointer', padding: 0}}
+                                                    >
+                                                        ▶ {formatTime(event.timestamp)}
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '14px', textAlign: 'center', padding: '32px 0'}}>No events tagged yet. Tag events using the buttons on the left.</p>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '48px', textAlign: 'center'}}>
+                                <p style={{color: 'rgba(255,255,255,0.8)', fontSize: '18px', marginBottom: '24px'}}>
+                                    Upload a video to start your analysis
+                                </p>
+                                <button onClick={() => setActiveTab('upload')} style={{background: 'white', color: '#00833E', padding: '12px 24px', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit'}}>
+                                    UPLOAD VIDEO
+                                </button>
+                            </div>
+                        )
                     )}
                 </div>
             </div>
