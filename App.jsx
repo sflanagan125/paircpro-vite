@@ -62,673 +62,1446 @@ function App() {
     return <LandingPage setView={setView} />;
 }
 
-// ============================================
-// KEEP YOUR EXISTING LANDING/PRICING/CONTACT/AUTH PAGES HERE
-// DO NOT CHANGE THEM - PASTE THEM AS-IS FROM YOUR CURRENT FILE
-// ============================================
-
-// Landing Page Component - PASTE YOUR EXISTING CODE
+// Landing Page Component
 function LandingPage({ setView }) {
-    // ... YOUR EXISTING LANDING PAGE CODE ...
-    return <div>Your existing landing page here</div>;
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [accordion1, setAccordion1] = useState(false);
+    const [accordion2, setAccordion2] = useState(false);
+    const [accordion3, setAccordion3] = useState(false);
+
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && menuOpen) setMenuOpen(false);
+        };
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [menuOpen]);
+
+    return (
+        <div>
+            {/* Green CTA Bar */}
+            <div className="green-cta-bar" onClick={() => setView('contact')}>
+                BOOK YOUR FREE DEMO
+            </div>
+
+            {/* Fixed Navigation */}
+            <nav className="nav-fixed">
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1400px', margin: '0 auto'}}>
+                    <div className="nav-logo">
+                        <svg width="48" height="48" viewBox="0 0 32 32">
+                            <rect width="32" height="32" rx="8" fill="white"/>
+                            <circle cx="16" cy="16" r="8" fill="#00833E"/>
+                            <path d="M12 16 L16 12 L20 16 L16 20 Z" fill="white"/>
+                        </svg>
+                        <span className="nav-logo-text">PÁIRCPRO</span>
+                    </div>
+                    <button 
+                        className={`hamburger ${menuOpen ? 'active' : ''}`}
+                        onClick={() => setMenuOpen(!menuOpen)}
+                        aria-label="Toggle menu"
+                    >
+                        <div className="hamburger-line"></div>
+                        <div className="hamburger-line"></div>
+                        <div className="hamburger-line"></div>
+                    </button>
+                </div>
+            </nav>
+
+            {/* Fullscreen Menu */}
+            <div className={`fullscreen-menu ${menuOpen ? 'active' : ''}`}>
+                <nav>
+                    <a href="#" onClick={(e) => {e.preventDefault(); setMenuOpen(false);}}>HOME</a>
+                    <a href="#" onClick={(e) => {e.preventDefault(); setMenuOpen(false); setView('pricing');}}>PRICING</a>
+                    <a href="#" onClick={(e) => {e.preventDefault(); setMenuOpen(false); setView('contact');}}>CONTACT</a>
+                    <a href="#" onClick={(e) => {e.preventDefault(); setMenuOpen(false); setView('auth');}}>SIGN IN</a>
+                </nav>
+            </div>
+
+            {/* Hero Section */}
+            <section 
+                id="main-content"
+                className="hero-section hero-overlay-dark"
+                style={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundImage: 'url(/hurling-hero.jpg)',
+                    padding: '120px 24px 80px'
+                }}
+            >
+                <div className="hero-content container-narrow text-center" style={{color: 'white'}}>
+                    <h1 style={{
+                        fontSize: '72px',
+                        fontWeight: '900',
+                        textTransform: 'uppercase',
+                        marginBottom: '32px',
+                        color: 'white',
+                        textShadow: '0 4px 12px rgba(0,0,0,0.5)'
+                    }}>
+                        ELITE GAA<br/>
+                        VIDEO ANALYSIS.<br/>
+                        SIMPLIFIED.
+                    </h1>
+                    <div className="divider-line"></div>
+                    <h2 style={{
+                        fontSize: '24px',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.15em',
+                        marginBottom: '48px',
+                        color: 'white',
+                        textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                    }}>
+                        PROFESSIONAL TOOLS FOR COACHES & TEAMS
+                    </h2>
+                    <p className="body-lg" style={{
+                        maxWidth: '600px',
+                        margin: '0 auto 64px',
+                        color: 'white',
+                        textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                    }}>
+                        Upload match footage, get instant tactical insights, and build winning game plans. Used by county teams across Ireland.
+                    </p>
+                    <button onClick={() => setView('contact')} className="btn-outline-white">
+                        BOOK FREE DEMO
+                    </button>
+                </div>
+            </section>
+
+            {/* Value Proposition */}
+            <section className="bg-white" style={{padding: 'var(--section-padding) 24px'}}>
+                <div className="container-narrow text-center">
+                    <h2 className="display-md uppercase mb-large">
+                        WHY <strong>PÁIRCPRO?</strong>
+                    </h2>
+                    <p className="body-lg mb-medium">
+                        <strong>PáircPro</strong> gives GAA coaches the analysis tools they need without the complexity of professional software. Upload, analyze, share - all in one platform.
+                    </p>
+                    <p className="body-lg mb-medium" style={{textDecoration: 'underline'}}>
+                        No training required. Start analyzing in minutes.
+                    </p>
+                    <p className="body-lg mb-xlarge" style={{fontWeight: '700', textTransform: 'uppercase'}}>
+                        CLUB TO COUNTY - ALL LEVELS WELCOME
+                    </p>
+                    <button onClick={() => setView('pricing')} className="btn-primary">
+                        SEE PRICING
+                    </button>
+                </div>
+            </section>
+
+            {/* Features Section */}
+            <section 
+                className="hero-section hero-overlay-darker"
+                style={{
+                    backgroundImage: 'url(/football-hero.jpg)',
+                    padding: 'var(--section-padding) 24px',
+                    color: 'white'
+                }}
+            >
+                <div className="hero-content container-narrow">
+                    <h2 className="display-lg uppercase mb-large text-center">
+                        BUILT FOR<br/>
+                        GAA COACHES.
+                    </h2>
+                    <div style={{width: '100%', height: '2px', background: 'white', margin: '48px 0'}}></div>
+
+                    {/* Accordion Container */}
+                    <div className="accordion-container">
+                        {/* Accordion 1 */}
+                        <div className="accordion-item">
+                            <button className="accordion-header" onClick={() => setAccordion1(!accordion1)}>
+                                <h3 className="accordion-title">VIDEO UPLOAD & STORAGE</h3>
+                                <span className={`accordion-icon ${accordion1 ? 'active' : ''}`}>+</span>
+                            </button>
+                            <div className={`accordion-content ${accordion1 ? 'active' : ''}`}>
+                                <div className="accordion-content-inner">
+                                    <p className="body-md mb-medium">
+                                        Upload full match footage or training clips. Secure cloud storage keeps everything organized by team, competition, and date.
+                                    </p>
+                                    <p className="body-md mb-small">Features:</p>
+                                    <ul style={{listStyle: 'none', padding: 0, margin: 0}}>
+                                        <li className="body-md mb-small" style={{paddingLeft: '24px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>•</span>
+                                            Unlimited video uploads
+                                        </li>
+                                        <li className="body-md mb-small" style={{paddingLeft: '24px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>•</span>
+                                            Automatic backup and sync
+                                        </li>
+                                        <li className="body-md mb-small" style={{paddingLeft: '24px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>•</span>
+                                            Team and player tagging
+                                        </li>
+                                        <li className="body-md" style={{paddingLeft: '24px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>•</span>
+                                            HD quality playback
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Accordion 2 */}
+                        <div className="accordion-item">
+                            <button className="accordion-header" onClick={() => setAccordion2(!accordion2)}>
+                                <h3 className="accordion-title">TACTICAL ANALYSIS TOOLS</h3>
+                                <span className={`accordion-icon ${accordion2 ? 'active' : ''}`}>+</span>
+                            </button>
+                            <div className={`accordion-content ${accordion2 ? 'active' : ''}`}>
+                                <div className="accordion-content-inner">
+                                    <p className="body-md mb-medium">
+                                        Draw formations, highlight key moments, and create video clips. Share tactical breakdowns with your team instantly.
+                                    </p>
+                                    <p className="body-md mb-small">Tools include:</p>
+                                    <ul style={{listStyle: 'none', padding: 0}}>
+                                        <li className="body-md mb-small" style={{paddingLeft: '32px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>1.</span>
+                                            Drawing tools for formations
+                                        </li>
+                                        <li className="body-md mb-small" style={{paddingLeft: '32px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>2.</span>
+                                            Clip creation and sharing
+                                        </li>
+                                        <li className="body-md mb-small" style={{paddingLeft: '32px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>3.</span>
+                                            Frame-by-frame analysis
+                                        </li>
+                                        <li className="body-md mb-small" style={{paddingLeft: '32px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>4.</span>
+                                            Slow motion playback
+                                        </li>
+                                        <li className="body-md" style={{paddingLeft: '32px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>5.</span>
+                                            Text annotations
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Accordion 3 */}
+                        <div className="accordion-item">
+                            <button className="accordion-header" onClick={() => setAccordion3(!accordion3)}>
+                                <h3 className="accordion-title">TEAM COLLABORATION</h3>
+                                <span className={`accordion-icon ${accordion3 ? 'active' : ''}`}>+</span>
+                            </button>
+                            <div className={`accordion-content ${accordion3 ? 'active' : ''}`}>
+                                <div className="accordion-content-inner">
+                                    <p className="body-md mb-medium">
+                                        Invite coaching staff and players. Share analysis, assign tasks, and track progress all in one place.
+                                    </p>
+                                    <p className="body-md mb-small">Collaboration features:</p>
+                                    <ul style={{listStyle: 'none', padding: 0}}>
+                                        <li className="body-md mb-small" style={{paddingLeft: '24px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>•</span>
+                                            Multi-user access
+                                        </li>
+                                        <li className="body-md mb-small" style={{paddingLeft: '24px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>•</span>
+                                            Role-based permissions
+                                        </li>
+                                        <li className="body-md mb-small" style={{paddingLeft: '24px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>•</span>
+                                            Shared playlists
+                                        </li>
+                                        <li className="body-md mb-small" style={{paddingLeft: '24px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>•</span>
+                                            Comments and feedback
+                                        </li>
+                                        <li className="body-md" style={{paddingLeft: '24px', position: 'relative'}}>
+                                            <span style={{position: 'absolute', left: 0}}>•</span>
+                                            Export and download options
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section style={{
+                background: 'var(--primary-green)',
+                color: 'white',
+                padding: '80px 24px',
+                textAlign: 'center'
+            }}>
+                <div className="container-narrow">
+                    <h2 className="display-md uppercase mb-medium">
+                        READY TO ELEVATE YOUR COACHING?
+                    </h2>
+                    <p className="body-lg mb-xlarge">
+                        See PáircPro in action with a personalized demo from our team.
+                    </p>
+                    <button 
+                        onClick={() => setView('contact')}
+                        className="btn-outline-white"
+                    >
+                        BOOK FREE DEMO
+                    </button>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="bg-black text-white text-center" style={{padding: '48px 24px'}}>
+                <div className="container-narrow">
+                    <p className="body-md mb-medium" style={{color: 'rgba(255,255,255,0.7)'}}>
+                        © 2025 PáircPro. Professional GAA video analysis platform.
+                    </p>
+                    <div style={{display: 'flex', gap: '32px', justifyContent: 'center', flexWrap: 'wrap'}}>
+                        <a href="#" onClick={(e) => {e.preventDefault(); setView('landing');}} style={{color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px'}}>Privacy</a>
+                        <a href="#" onClick={(e) => {e.preventDefault(); setView('landing');}} style={{color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px'}}>Terms</a>
+                        <a href="#" onClick={(e) => {e.preventDefault(); setView('contact');}} style={{color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px'}}>Contact</a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    );
 }
 
-// Pricing Page Component - PASTE YOUR EXISTING CODE  
+// Pricing Page Component
 function PricingPage({ setView }) {
-    // ... YOUR EXISTING PRICING PAGE CODE ...
-    return <div>Your existing pricing page here</div>;
-}
-
-// Contact Page Component - PASTE YOUR EXISTING CODE
-function ContactPage({ setView }) {
-    // ... YOUR EXISTING CONTACT PAGE CODE ...
-    return <div>Your existing contact page here</div>;
-}
-
-// Auth Page Component - PASTE YOUR EXISTING CODE
-function AuthPage({ setView, setUser }) {
-    // ... YOUR EXISTING AUTH PAGE CODE ...
-    return <div>Your existing auth page here</div>;
-}
-
-// ============================================
-// COMPLETE DASHBOARD - 100% PORTED FROM app-OLD.html
-// ============================================
-
-function Dashboard({ user, setView, setUser }) {
-    const [videoFile, setVideoFile] = useState(null);
-    const [videoUrl, setVideoUrl] = useState(null);
-    const [currentMatch, setCurrentMatch] = useState(null);
+    const [billing, setBilling] = useState('monthly');
     
+    return (
+        <div style={{minHeight: '100vh', background: 'white'}}>
+            {/* Header */}
+            <nav style={{background: 'white', borderBottom: '1px solid #E5E5E5', padding: '16px 24px'}}>
+                <div style={{maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <button 
+                        onClick={() => setView('landing')}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.1em',
+                            fontFamily: 'inherit'
+                        }}
+                    >
+                        ← BACK
+                    </button>
+                </div>
+            </nav>
+
+            {/* Pricing Content */}
+            <div style={{padding: '80px 24px'}}>
+                <div className="container text-center">
+                    <h1 className="display-lg uppercase mb-medium">CHOOSE YOUR PLAN</h1>
+                    <p className="body-lg mb-large" style={{color: 'var(--gray-mid)'}}>
+                        Professional GAA video analysis for every level
+                    </p>
+                    
+                    {/* Billing Toggle */}
+                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '48px'}}>
+                        <span style={{fontWeight: '600', color: billing === 'monthly' ? '#000' : '#999'}}>Monthly</span>
+                        <button
+                            onClick={() => setBilling(billing === 'monthly' ? 'annual' : 'monthly')}
+                            style={{
+                                width: '60px',
+                                height: '32px',
+                                background: billing === 'annual' ? '#00833E' : '#E5E5E5',
+                                border: 'none',
+                                borderRadius: '16px',
+                                position: 'relative',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s'
+                            }}
+                        >
+                            <div style={{
+                                width: '24px',
+                                height: '24px',
+                                background: 'white',
+                                borderRadius: '50%',
+                                position: 'absolute',
+                                top: '4px',
+                                left: billing === 'annual' ? '32px' : '4px',
+                                transition: 'all 0.3s'
+                            }}></div>
+                        </button>
+                        <span style={{fontWeight: '600', color: billing === 'annual' ? '#000' : '#999'}}>
+                            Annual <span style={{color: '#00833E', fontSize: '14px'}}>(Save 25%)</span>
+                        </span>
+                    </div>
+
+                    {/* Plans Grid */}
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                        gap: '32px',
+                        maxWidth: '1100px',
+                        margin: '0 auto 80px',
+                        textAlign: 'left'
+                    }}>
+                        {/* Coach Plan */}
+                        <div style={{
+                            border: '2px solid #E5E5E5',
+                            borderRadius: '8px',
+                            padding: '40px 32px',
+                        }}>
+                            <h3 style={{fontSize: '24px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '24px'}}>
+                                COACH
+                            </h3>
+                            <div style={{marginBottom: '32px'}}>
+                                {billing === 'annual' && (
+                                    <div style={{fontSize: '16px', color: '#999', textDecoration: 'line-through', marginBottom: '8px'}}>
+                                        €1,164/year
+                                    </div>
+                                )}
+                                <div style={{fontSize: '48px', fontWeight: '900', marginBottom: '8px'}}>
+                                    {billing === 'monthly' ? '€97' : '€873'}
+                                </div>
+                                <p style={{color: 'var(--gray-mid)', fontWeight: '600'}}>
+                                    {billing === 'monthly' ? '/month' : '/year'}
+                                </p>
+                            </div>
+                            <ul style={{listStyle: 'none', padding: 0, marginBottom: '32px'}}>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    50GB video storage
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    Up to 3 users
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    Basic analysis tools
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    GAA-specific tagging
+                                </li>
+                                <li style={{fontWeight: '400', color: 'var(--gray-mid)', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{marginRight: '12px'}}>✗</span>
+                                    Advanced statistics
+                                </li>
+                            </ul>
+                            <button 
+                                onClick={() => setView('contact')}
+                                className="btn-outline-black"
+                                style={{width: '100%'}}
+                            >
+                                BOOK DEMO
+                            </button>
+                        </div>
+
+                        {/* Premium Plan - Featured */}
+                        <div style={{
+                            border: '3px solid var(--primary-green)',
+                            borderRadius: '8px',
+                            padding: '40px 32px',
+                            position: 'relative',
+                            background: 'linear-gradient(180deg, #FAFAFA 0%, #FFFFFF 100%)'
+                        }}>
+                            <div style={{
+                                position: 'absolute',
+                                top: '-16px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                background: 'var(--primary-green)',
+                                color: 'white',
+                                padding: '8px 24px',
+                                borderRadius: '20px',
+                                fontSize: '12px',
+                                fontWeight: '800',
+                                letterSpacing: '0.1em'
+                            }}>
+                                MOST POPULAR
+                            </div>
+                            <h3 style={{fontSize: '24px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '24px'}}>
+                                PREMIUM
+                            </h3>
+                            <div style={{marginBottom: '32px'}}>
+                                {billing === 'annual' && (
+                                    <div style={{fontSize: '16px', color: '#999', textDecoration: 'line-through', marginBottom: '8px'}}>
+                                        €1,764/year
+                                    </div>
+                                )}
+                                <div style={{fontSize: '48px', fontWeight: '900', marginBottom: '8px'}}>
+                                    {billing === 'monthly' ? '€147' : '€1,323'}
+                                </div>
+                                <p style={{color: 'var(--gray-mid)', fontWeight: '600'}}>
+                                    {billing === 'monthly' ? '/month' : '/year'}
+                                </p>
+                            </div>
+                            <ul style={{listStyle: 'none', padding: 0, marginBottom: '32px'}}>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    150GB video storage
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    Up to 10 users
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    Advanced statistics
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    Live match analysis
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    PDF reports
+                                </li>
+                            </ul>
+                            <button 
+                                onClick={() => setView('contact')}
+                                className="btn-primary"
+                                style={{width: '100%'}}
+                            >
+                                BOOK DEMO
+                            </button>
+                        </div>
+
+                        {/* Enterprise Plan */}
+                        <div style={{
+                            border: '2px solid #E5E5E5',
+                            borderRadius: '8px',
+                            padding: '40px 32px',
+                        }}>
+                            <h3 style={{fontSize: '24px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '24px'}}>
+                                ENTERPRISE
+                            </h3>
+                            <div style={{marginBottom: '32px'}}>
+                                {billing === 'annual' && (
+                                    <div style={{fontSize: '16px', color: '#999', textDecoration: 'line-through', marginBottom: '8px'}}>
+                                        €5,964/year
+                                    </div>
+                                )}
+                                <div style={{fontSize: '48px', fontWeight: '900', marginBottom: '8px'}}>
+                                    {billing === 'monthly' ? '€497' : '€4,473'}
+                                </div>
+                                <p style={{color: 'var(--gray-mid)', fontWeight: '600'}}>
+                                    {billing === 'monthly' ? '/month' : '/year'}
+                                </p>
+                            </div>
+                            <ul style={{listStyle: 'none', padding: 0, marginBottom: '32px'}}>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    500GB video storage
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    Unlimited users
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    Everything in Premium
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    Custom integrations
+                                </li>
+                                <li style={{marginBottom: '16px', fontWeight: '500', display: 'flex', alignItems: 'start'}}>
+                                    <span style={{color: 'var(--black)', marginRight: '12px', fontWeight: '700'}}>✓</span>
+                                    Dedicated account manager
+                                </li>
+                            </ul>
+                            <button 
+                                onClick={() => setView('contact')}
+                                className="btn-outline-black"
+                                style={{width: '100%'}}
+                            >
+                                BOOK DEMO
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Contact Page Component  
+function ContactPage({ setView }) {
+    const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+    const [sending, setSending] = useState(false);
+    const [sent, setSent] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setSending(true);
+        
+        const form = new FormData();
+        form.append('name', formData.name);
+        form.append('email', formData.email);
+        form.append('message', formData.message);
+        form.append('_subject', 'PáircPro Demo Request - ' + formData.name);
+        form.append('_autoresponse', 'Thank you for your interest in PáircPro! We\'ve received your demo request and will contact you within 24 hours to schedule your personalized demonstration.');
+        form.append('_captcha', 'false');
+        
+        try {
+            // Save to Supabase
+            await supabase.from('contact_requests').insert([{
+                name: formData.name,
+                email: formData.email,
+                message: formData.message,
+                status: 'new'
+            }]);
+            
+            // Send email via FormSubmit
+            await fetch('https://formsubmit.co/sflanagan125@gmail.com', {
+                method: 'POST',
+                body: form
+            });
+            
+            setSent(true);
+        } catch (error) {
+            alert('Error sending message. Please try again.');
+        } finally {
+            setSending(false);
+        }
+    };
+
+    if (sent) {
+        return (
+            <div style={{minHeight: '100vh', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'}}>
+                <div style={{textAlign: 'center', maxWidth: '500px'}}>
+                    <h2 className="display-md uppercase mb-medium">MESSAGE SENT!</h2>
+                    <p className="body-lg mb-xlarge" style={{color: 'var(--gray-mid)'}}>
+                        Thanks for reaching out. We'll get back to you within 24 hours.
+                    </p>
+                    <button onClick={() => setView('landing')} className="btn-primary">
+                        BACK TO HOME
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div style={{minHeight: '100vh', background: 'white'}}>
+            {/* Header */}
+            <nav style={{background: 'white', borderBottom: '1px solid #E5E5E5', padding: '16px 24px'}}>
+                <div style={{maxWidth: '1200px', margin: '0 auto'}}>
+                    <button 
+                        onClick={() => setView('landing')}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.1em',
+                            fontFamily: 'inherit'
+                        }}
+                    >
+                        ← BACK
+                    </button>
+                </div>
+            </nav>
+
+            <div style={{padding: '80px 24px'}}>
+                <div className="container-narrow">
+                    <h1 className="display-lg uppercase mb-medium text-center">GET IN TOUCH</h1>
+                    <p className="body-lg mb-xlarge text-center" style={{color: 'var(--gray-mid)'}}>
+                        Questions about PáircPro? We're here to help.
+                    </p>
+
+                    <form onSubmit={handleSubmit} style={{maxWidth: '600px', margin: '0 auto'}}>
+                        <div style={{marginBottom: '24px'}}>
+                            <label style={{display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                                NAME *
+                            </label>
+                            <input
+                                type="text"
+                                required
+                                value={formData.name}
+                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                style={{
+                                    width: '100%',
+                                    padding: '16px',
+                                    border: '2px solid #E5E5E5',
+                                    borderRadius: '8px',
+                                    fontSize: '16px',
+                                    fontFamily: 'inherit'
+                                }}
+                            />
+                        </div>
+
+                        <div style={{marginBottom: '24px'}}>
+                            <label style={{display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                                EMAIL *
+                            </label>
+                            <input
+                                type="email"
+                                required
+                                value={formData.email}
+                                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                style={{
+                                    width: '100%',
+                                    padding: '16px',
+                                    border: '2px solid #E5E5E5',
+                                    borderRadius: '8px',
+                                    fontSize: '16px',
+                                    fontFamily: 'inherit'
+                                }}
+                            />
+                        </div>
+
+                        <div style={{marginBottom: '32px'}}>
+                            <label style={{display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                                MESSAGE *
+                            </label>
+                            <textarea
+                                required
+                                rows="6"
+                                value={formData.message}
+                                onChange={(e) => setFormData({...formData, message: e.target.value})}
+                                style={{
+                                    width: '100%',
+                                    padding: '16px',
+                                    border: '2px solid #E5E5E5',
+                                    borderRadius: '8px',
+                                    fontSize: '16px',
+                                    fontFamily: 'inherit',
+                                    resize: 'vertical'
+                                }}
+                            />
+                        </div>
+
+                        <button 
+                            type="submit"
+                            disabled={sending}
+                            className="btn-primary"
+                            style={{width: '100%'}}
+                        >
+                            {sending ? 'SENDING...' : 'SEND MESSAGE'}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Auth Page Component
+function AuthPage({ setView, setUser }) {
+    const [isSignUp, setIsSignUp] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleAuth = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            if (isSignUp) {
+                const { error } = await supabase.auth.signUp({ email, password });
+                if (error) throw error;
+                alert('Check your email for the confirmation link!');
+            } else {
+                const { error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+            }
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div style={{minHeight: '100vh', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'}}>
+            <div style={{width: '100%', maxWidth: '400px'}}>
+                <button 
+                    onClick={() => setView('landing')}
+                    style={{
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        marginBottom: '32px',
+                        fontFamily: 'inherit'
+                    }}
+                >
+                    ← BACK
+                </button>
+
+                <h1 className="display-md uppercase mb-large text-center">
+                    {isSignUp ? 'CREATE ACCOUNT' : 'WELCOME BACK'}
+                </h1>
+
+                <form onSubmit={handleAuth}>
+                    <div style={{marginBottom: '24px'}}>
+                        <label style={{display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                            EMAIL *
+                        </label>
+                        <input
+                            type="email"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '16px',
+                                border: '2px solid #E5E5E5',
+                                borderRadius: '8px',
+                                fontSize: '16px',
+                                fontFamily: 'inherit'
+                            }}
+                        />
+                    </div>
+
+                    <div style={{marginBottom: '32px'}}>
+                        <label style={{display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                            PASSWORD *
+                        </label>
+                        <input
+                            type="password"
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '16px',
+                                border: '2px solid #E5E5E5',
+                                borderRadius: '8px',
+                                fontSize: '16px',
+                                fontFamily: 'inherit'
+                            }}
+                        />
+                    </div>
+
+                    <button 
+                        type="submit"
+                        disabled={loading}
+                        className="btn-primary"
+                        style={{width: '100%', marginBottom: '16px'}}
+                    >
+                        {loading ? 'LOADING...' : (isSignUp ? 'SIGN UP' : 'SIGN IN')}
+                    </button>
+
+                    <p style={{textAlign: 'center', fontSize: '14px', color: 'var(--gray-mid)'}}>
+                        {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+                        <button
+                            type="button"
+                            onClick={() => setIsSignUp(!isSignUp)}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--primary-green)',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                textDecoration: 'underline',
+                                fontFamily: 'inherit'
+                            }}
+                        >
+                            {isSignUp ? 'Sign in' : 'Sign up'}
+                        </button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+// Dashboard Component
+// COMPLETE VIDEO ANALYSIS DASHBOARD
+function Dashboard({ user, setView, setUser }) {
+    // Video & Match State
+    const videoRef = useRef(null);
+    const [videoUrl, setVideoUrl] = useState('');
+    const [videoFile, setVideoFile] = useState(null);
+    const [currentMatch, setCurrentMatch] = useState(null);
+    const [matches, setMatches] = useState([]);
+    const [uploading, setUploading] = useState(false);
+    
+    // Teams & Sport
+    const [sport, setSport] = useState('football');
+    const [homeTeam, setHomeTeam] = useState('Home Team');
+    const [awayTeam, setAwayTeam] = useState('Away Team');
+    
+    // Scores
+    const [homeGoals, setHomeGoals] = useState(0);
+    const [homePoints, setHomePoints] = useState(0);
+    const [awayGoals, setAwayGoals] = useState(0);
+    const [awayPoints, setAwayPoints] = useState(0);
+    
+    // Events
+    const [events, setEvents] = useState([]);
+    
+    // Video Player State
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [playbackSpeed, setPlaybackSpeed] = useState(1);
+    
+    // UI State
+    const [activeTab, setActiveTab] = useState('upload');
+    const [selectedTeam, setSelectedTeam] = useState('home');
+    
+    // Event Types Configuration
+    const eventTypes = {
+        football: {
+            scoring: [
+                { id: 'goal', label: 'Goal', color: '#10b981', points: 3 },
+                { id: 'point', label: 'Point', color: '#f59e0b', points: 1 },
+                { id: '2point', label: '2 Point', color: '#8b5cf6', points: 2 },
+                { id: 'wide', label: 'Wide', color: '#ef4444', points: 0 }
+            ],
+            setpieces: [
+                { id: 'free', label: 'Free Kick', color: '#06b6d4' },
+                { id: '45', label: '45', color: '#3b82f6' },
+                { id: 'penalty', label: 'Penalty', color: '#ec4899' },
+                { id: 'sideline', label: 'Sideline', color: '#14b8a6' }
+            ],
+            possession: [
+                { id: 'kickout_own_won', label: 'Own Kickout Won', color: '#10b981' },
+                { id: 'kickout_own_lost', label: 'Own Kickout Lost', color: '#ef4444' },
+                { id: 'kickout_opp_won', label: 'Opp Kickout Won', color: '#10b981' },
+                { id: 'kickout_opp_lost', label: 'Opp Kickout Lost', color: '#ef4444' }
+            ],
+            discipline: [
+                { id: 'foul', label: 'Foul', color: '#f97316' },
+                { id: 'yellow', label: 'Yellow Card', color: '#fbbf24' },
+                { id: 'black', label: 'Black Card', color: '#000000' },
+                { id: 'red', label: 'Red Card', color: '#dc2626' }
+            ],
+            other: [
+                { id: 'substitution', label: 'Substitution', color: '#6366f1' },
+                { id: 'turnover', label: 'Turnover', color: '#f43f5e' }
+            ]
+        },
+        hurling: {
+            scoring: [
+                { id: 'goal', label: 'Goal', color: '#10b981', points: 3 },
+                { id: 'point', label: 'Point', color: '#f59e0b', points: 1 },
+                { id: 'wide', label: 'Wide', color: '#ef4444', points: 0 }
+            ],
+            setpieces: [
+                { id: 'free', label: 'Free', color: '#06b6d4' },
+                { id: '65', label: '65', color: '#3b82f6' },
+                { id: 'penalty', label: 'Penalty', color: '#ec4899' },
+                { id: 'sideline', label: 'Sideline', color: '#14b8a6' }
+            ],
+            discipline: [
+                { id: 'foul', label: 'Foul', color: '#f97316' },
+                { id: 'yellow', label: 'Yellow Card', color: '#fbbf24' },
+                { id: 'red', label: 'Red Card', color: '#dc2626' }
+            ],
+            other: [
+                { id: 'substitution', label: 'Substitution', color: '#6366f1' },
+                { id: 'turnover', label: 'Turnover', color: '#f43f5e' }
+            ]
+        }
+    };
+    
+    const currentEvents = eventTypes[sport];
+
     const handleSignOut = async () => {
         await supabase.auth.signOut();
         setUser(null);
         setView('landing');
     };
 
-    // If no video loaded, show upload screen
-    if (!videoUrl) {
-        return <UploadScreen user={user} setVideoUrl={setVideoUrl} setVideoFile={setVideoFile} setCurrentMatch={setCurrentMatch} handleSignOut={handleSignOut} />;
-    }
-
-    // Video loaded - show analysis interface
-    return <AnalysisInterface videoUrl={videoUrl} videoFile={videoFile} currentMatch={currentMatch} handleSignOut={handleSignOut} />;
-}
-
-// Upload Screen
-function UploadScreen({ user, setVideoUrl, setVideoFile, setCurrentMatch, handleSignOut }) {
-    const [uploading, setUploading] = useState(false);
-
     const handleVideoUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
-        // Check file size (5GB limit)
-        if (file.size > 5 * 1024 * 1024 * 1024) {
-            alert('File size must be under 5GB');
-            return;
-        }
-
+        
         setUploading(true);
-
         try {
-            const fileName = `${Date.now()}-${file.name}`;
-            const filePath = `${user.id}/${fileName}`;
-
-            const { error: uploadError } = await supabase.storage
+            const fileName = `${user.id}/${Date.now()}-${file.name}`;
+            const { data, error } = await supabase.storage
                 .from('videos')
-                .upload(filePath, file);
+                .upload(fileName, file);
 
-            if (uploadError) throw uploadError;
+            if (error) throw error;
 
             const { data: { publicUrl } } = supabase.storage
                 .from('videos')
-                .getPublicUrl(filePath);
-
-            const { data: match, error: dbError } = await supabase
-                .from('matches')
-                .insert({
-                    user_id: user.id,
-                    title: file.name,
-                    video_url: publicUrl,
-                    video_path: filePath,
-                    sport: 'football',
-                    events: [],
-                    metadata: {}
-                })
-                .select()
-                .single();
-
-            if (dbError) throw dbError;
+                .getPublicUrl(fileName);
 
             setVideoUrl(publicUrl);
             setVideoFile(file);
-            setCurrentMatch(match);
+            
+            const { data: matchData } = await supabase
+                .from('matches')
+                .insert([{
+                    user_id: user.id,
+                    video_url: publicUrl,
+                    title: file.name,
+                    home_team: homeTeam,
+                    away_team: awayTeam,
+                    sport: sport,
+                    home_score: 0,
+                    away_score: 0,
+                    events: [],
+                    created_at: new Date()
+                }])
+                .select()
+                .single();
+
+            setCurrentMatch(matchData);
+            setActiveTab('analysis');
         } catch (error) {
-            console.error('Upload error:', error);
-            alert('Failed to upload video: ' + error.message);
+            alert('Upload failed: ' + error.message);
         } finally {
             setUploading(false);
         }
     };
 
-    return (
-        <div style={{minHeight: '100vh', background: 'linear-gradient(135deg, #0066cc 0%, #004499 100%)', display: 'flex', flexDirection: 'column'}}>
-            <div style={{padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                <div style={{fontSize: '26px', fontWeight: '700', color: 'white'}}>PáircPro</div>
-                <button onClick={handleSignOut} style={{background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '600'}}>
-                    Sign Out
-                </button>
-            </div>
-            
-            <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px'}}>
-                <div style={{textAlign: 'center', maxWidth: '600px'}}>
-                    <h1 style={{fontSize: '48px', fontWeight: '900', color: 'white', marginBottom: '24px'}}>Upload Match Video</h1>
-                    <p style={{fontSize: '18px', color: 'rgba(255,255,255,0.8)', marginBottom: '48px'}}>
-                        Choose a match video to start your analysis
-                    </p>
-                    
-                    <input
-                        type="file"
-                        accept="video/*"
-                        onChange={handleVideoUpload}
-                        disabled={uploading}
-                        style={{display: 'none'}}
-                        id="video-upload"
-                    />
-                    <label htmlFor="video-upload" style={{cursor: uploading ? 'not-allowed' : 'pointer'}}>
-                        <div style={{
-                            background: 'rgba(255,255,255,0.1)',
-                            backdropFilter: 'blur(20px)',
-                            border: '2px dashed rgba(255,255,255,0.3)',
-                            borderRadius: '16px',
-                            padding: '64px',
-                            display: 'inline-block',
-                            transition: 'all 0.2s ease'
-                        }}>
-                            <div style={{fontSize: '64px', marginBottom: '24px'}}>📁</div>
-                            <div style={{fontSize: '24px', fontWeight: '700', color: 'white', marginBottom: '12px'}}>
-                                {uploading ? 'Uploading...' : 'Choose Match Video'}
-                            </div>
-                            <div style={{fontSize: '16px', color: 'rgba(255,255,255,0.7)'}}>
-                                MP4, MOV, AVI • Max 5GB
-                            </div>
-                        </div>
-                    </label>
-                </div>
-            </div>
-        </div>
-    );
-}
+    const tagEvent = async (eventType, team) => {
+        if (!videoRef || !videoRef.current) return;
+        
+        const timestamp = videoRef.current.currentTime;
+        const event = {
+            id: Date.now(),
+            type: eventType.id,
+            label: eventType.label,
+            color: eventType.color,
+            team: team,
+            timestamp: timestamp,
+            sport: sport
+        };
+        
+        const newEvents = [...events, event].sort((a, b) => a.timestamp - b.timestamp);
+        setEvents(newEvents);
+        
+        // Update scores
+        if (eventType.points !== undefined) {
+            if (team === 'home') {
+                if (eventType.id === 'goal') setHomeGoals(homeGoals + 1);
+                else if (eventType.id === 'point') setHomePoints(homePoints + 1);
+                else if (eventType.id === '2point') setHomePoints(homePoints + 2);
+            } else {
+                if (eventType.id === 'goal') setAwayGoals(awayGoals + 1);
+                else if (eventType.id === 'point') setAwayPoints(awayPoints + 1);
+                else if (eventType.id === '2point') setAwayPoints(awayPoints + 2);
+            }
+        }
+        
+        // Save to database
+        if (currentMatch) {
+            await supabase
+                .from('matches')
+                .update({ events: newEvents })
+                .eq('id', currentMatch.id);
+        }
+    };
 
-// Complete Analysis Interface - 3 Column Layout from app-OLD.html
-function AnalysisInterface({ videoUrl, videoFile, currentMatch, handleSignOut }) {
-    const videoRef = useRef(null);
-    const [currentSport, setCurrentSport] = useState('football');
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [duration, setDuration] = useState(0);
-    const [events, setEvents] = useState([]);
-    const [stats, setStats] = useState({
-        'Goal': 0, 'Point': 0, '2 Point': 0, 'Wide': 0, 'Saved': 0, '45': 0, '65': 0,
-        'Own Kickout Won': 0, 'Own Kickout Lost': 0, 'Opp Kickout Won': 0, 'Opp Kickout Lost': 0,
-        'Free Kick': 0, 'Sideline': 0, 'Penalty': 0, 'Throw-in': 0,
-        'Foul': 0, 'Yellow Card': 0, 'Red Card': 0, 'Black Card': 0,
-        'Substitution': 0, 'Mark': 0, 'Turnover': 0, 'Blocked': 0, 'Short': 0
-    });
-    const [scores, setScores] = useState({
-        home: { goals: 0, points: 0 },
-        away: { goals: 0, points: 0 }
-    });
+    const seekToEvent = (timestamp) => {
+        if (videoRef && videoRef.current) {
+            videoRef.current.currentTime = timestamp;
+            videoRef.current.play();
+            setIsPlaying(true);
+        }
+    };
 
-    // Format time helper
+    const deleteEvent = async (eventId) => {
+        const newEvents = events.filter(e => e.id !== eventId);
+        setEvents(newEvents);
+        
+        if (currentMatch) {
+            await supabase
+                .from('matches')
+                .update({ events: newEvents })
+                .eq('id', currentMatch.id);
+        }
+    };
+
+    const togglePlayPause = () => {
+        if (!videoRef || !videoRef.current) return;
+        
+        if (isPlaying) {
+            videoRef.current.pause();
+            setIsPlaying(false);
+        } else {
+            videoRef.current.play();
+            setIsPlaying(true);
+        }
+    };
+
+    const skipTime = (seconds) => {
+        if (videoRef && videoRef.current) {
+            videoRef.current.currentTime = Math.max(0, Math.min(duration, currentTime + seconds));
+        }
+    };
+
+    const changeSpeed = (speed) => {
+        if (videoRef && videoRef.current) {
+            videoRef.current.playbackRate = speed;
+            setPlaybackSpeed(speed);
+        }
+    };
+
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    // Video control handlers
-    const togglePlayPause = () => {
-        if (!videoRef.current) return;
-        if (isPlaying) {
-            videoRef.current.pause();
-        } else {
-            videoRef.current.play();
-        }
-        setIsPlaying(!isPlaying);
-    };
-
-    const handleTimeUpdate = () => {
-        if (videoRef.current) {
-            setCurrentTime(videoRef.current.currentTime);
-        }
-    };
-
-    const handleLoadedMetadata = () => {
-        if (videoRef.current) {
-            setDuration(videoRef.current.duration);
-        }
-    };
-
-    const seekVideo = (e) => {
-        if (!videoRef.current) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const percentage = clickX / rect.width;
-        const newTime = percentage * duration;
-        videoRef.current.currentTime = newTime;
-    };
-
-    // Tag event - EXACT logic from app-OLD.html
-    const tagEvent = (eventType) => {
-        const timestamp = currentTime;
-        const event = {
-            type: eventType,
-            time: timestamp,
-            timeString: formatTime(timestamp),
-            sport: currentSport,
-            id: Date.now()
-        };
-        
-        const newEvents = [...events, event].sort((a, b) => a.time - b.time);
-        setEvents(newEvents);
-        
-        // Update statistics
-        setStats(prev => ({
-            ...prev,
-            [eventType]: prev[eventType] + 1
-        }));
-        
-        // Update scores (simple logic - always home team for now)
-        if (eventType === 'Goal') {
-            setScores(prev => ({
-                ...prev,
-                home: { ...prev.home, goals: prev.home.goals + 1 }
-            }));
-        } else if (eventType === 'Point') {
-            setScores(prev => ({
-                ...prev,
-                home: { ...prev.home, points: prev.home.points + 1 }
-            }));
-        } else if (eventType === '2 Point') {
-            setScores(prev => ({
-                ...prev,
-                home: { ...prev.home, points: prev.home.points + 2 }
-            }));
-        }
-
-        // Save to database
-        if (currentMatch) {
-            supabase.from('matches').update({ events: newEvents }).eq('id', currentMatch.id);
-        }
-    };
-
-    // Export CSV function
-    const exportCSV = () => {
-        if (events.length === 0) {
-            alert('No events to export');
-            return;
-        }
-        
-        const csvContent = [
-            ['Event Type', 'Time (seconds)', 'Time (MM:SS)', 'Sport', 'Timestamp'],
-            ...events.map(event => [
-                event.type,
-                event.time.toFixed(2),
-                event.timeString,
-                event.sport,
-                new Date().toISOString()
-            ])
-        ].map(row => row.join(',')).join('\n');
-        
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `paircpro-events-${Date.now()}.csv`;
-        a.click();
-    };
-
-    // Save project as JSON
-    const saveProject = () => {
-        const projectData = {
-            events: events,
-            stats: stats,
-            scores: scores,
-            sport: currentSport,
-            timestamp: new Date().toISOString()
-        };
-        
-        const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `paircpro-project-${Date.now()}.json`;
-        a.click();
-    };
-
-    // Keyboard shortcuts - EXACT from app-OLD.html
     useEffect(() => {
-        const handleKeyPress = (e) => {
-            if (e.target.tagName === 'INPUT') return;
+        const loadMatches = async () => {
+            const { data } = await supabase
+                .from('matches')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
             
-            switch(e.key.toLowerCase()) {
-                case 'g': tagEvent('Goal'); break;
-                case 'p': tagEvent('Point'); break;
-                case 'w': tagEvent('Wide'); break;
-                case 's': tagEvent('Saved'); break;
-                case 'f': tagEvent('Foul'); break;
-                case 'c': tagEvent('Yellow Card'); break;
-                case ' ': 
-                    e.preventDefault();
-                    togglePlayPause();
-                    break;
-            }
+            if (data) setMatches(data);
         };
+        loadMatches();
+    }, [user.id]);
 
-        window.addEventListener('keydown', handleKeyPress);
-        return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [currentTime, currentSport, events, stats, scores]);
+    useEffect(() => {
+        if (videoRef && videoRef.current) {
+            const video = videoRef.current;
+            
+            const handleLoadedMetadata = () => {
+                setDuration(video.duration);
+            };
+            
+            const handleTimeUpdate = () => {
+                setCurrentTime(video.currentTime);
+            };
+            
+            video.addEventListener('loadedmetadata', handleLoadedMetadata);
+            video.addEventListener('timeupdate', handleTimeUpdate);
+            
+            return () => {
+                video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+                video.removeEventListener('timeupdate', handleTimeUpdate);
+            };
+        }
+    }, [videoUrl]);
 
     return (
-        <div style={{display: 'flex', height: '100vh', background: 'linear-gradient(135deg, #0066cc 0%, #004499 100%)', color: 'white'}}>
-            {/* LEFT PANEL - Event Tagging */}
-            <div style={{width: '320px', minWidth: '280px', maxWidth: '360px', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', height: '100vh', overflowY: 'auto'}}>
-                <div style={{padding: '24px 20px', background: 'rgba(255,255,255,0.1)', borderBottom: '1px solid rgba(255,255,255,0.1)', fontSize: '26px', fontWeight: '700', textAlign: 'center'}}>
-                    PáircPro
+        <div style={{height: '100vh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(135deg, #00833E 0%, #006030 100%)'}}>
+            {/* Top Bar */}
+            <div style={{background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                <div style={{display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer'}} onClick={() => setView('landing')}>
+                    <svg width="32" height="32" viewBox="0 0 32 32">
+                        <rect width="32" height="32" rx="8" fill="white"/>
+                        <circle cx="16" cy="16" r="8" fill="#00833E"/>
+                    </svg>
+                    <span style={{fontSize: '20px', fontWeight: '800', color: 'white', textTransform: 'uppercase'}}>PÁIRCPRO</span>
                 </div>
-
-                {/* Match Setup */}
-                <div style={{padding: '20px', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', borderRadius: '12px', margin: '20px 16px', border: '1px solid rgba(255,255,255,0.1)'}}>
-                    <div style={{fontWeight: '700', fontSize: '16px', marginBottom: '16px'}}>Match Setup</div>
-                    <div style={{display: 'flex', gap: '6px', marginBottom: '12px'}}>
-                        <div 
-                            onClick={() => setCurrentSport('football')}
-                            style={{
-                                flex: 1,
-                                padding: '10px 12px',
-                                background: currentSport === 'football' ? 'white' : 'rgba(255,255,255,0.1)',
-                                color: currentSport === 'football' ? '#0066cc' : 'rgba(255,255,255,0.8)',
-                                border: currentSport === 'football' ? 'none' : '1px solid rgba(255,255,255,0.15)',
-                                borderRadius: '8px',
-                                textAlign: 'center',
-                                cursor: 'pointer',
-                                fontSize: '13px',
-                                fontWeight: '600',
-                                transition: 'all 0.2s ease'
-                            }}
-                        >
-                            Football
-                        </div>
-                        <div 
-                            onClick={() => setCurrentSport('hurling')}
-                            style={{
-                                flex: 1,
-                                padding: '10px 12px',
-                                background: currentSport === 'hurling' ? 'white' : 'rgba(255,255,255,0.1)',
-                                color: currentSport === 'hurling' ? '#0066cc' : 'rgba(255,255,255,0.8)',
-                                border: currentSport === 'hurling' ? 'none' : '1px solid rgba(255,255,255,0.15)',
-                                borderRadius: '8px',
-                                textAlign: 'center',
-                                cursor: 'pointer',
-                                fontSize: '13px',
-                                fontWeight: '600',
-                                transition: 'all 0.2s ease'
-                            }}
-                        >
-                            Hurling
-                        </div>
-                    </div>
-                </div>
-
-                {/* Event Tagging - EXACT categories from app-OLD.html */}
-                <div style={{padding: '0 16px 20px', flex: 1, overflowY: 'auto'}}>
-                    {/* Scoring Events */}
-                    <div style={{marginBottom: '20px'}}>
-                        <div style={{fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px'}}>
-                            Scoring
-                        </div>
-                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px'}}>
-                            <EventButton onClick={() => tagEvent('Goal')} color="#10b981">Goal</EventButton>
-                            <EventButton onClick={() => tagEvent('Point')} color="#f59e0b">Point</EventButton>
-                            {currentSport === 'football' && <EventButton onClick={() => tagEvent('2 Point')} color="#f59e0b">2 Point</EventButton>}
-                            <EventButton onClick={() => tagEvent('Wide')} color="#ef4444">Wide</EventButton>
-                            <EventButton onClick={() => tagEvent('Saved')} color="#06b6d4">Saved</EventButton>
-                            <EventButton onClick={() => tagEvent(currentSport === 'football' ? '45' : '65')} color="#8b5cf6">
-                                {currentSport === 'football' ? '45' : '65'}
-                            </EventButton>
-                        </div>
-                    </div>
-
-                    {/* Own Kickouts */}
-                    <div style={{marginBottom: '20px'}}>
-                        <div style={{fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700', textTransform: 'uppercase'}}>
-                            Own Kickouts
-                        </div>
-                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
-                            <EventButton onClick={() => tagEvent('Own Kickout Won')} color="#3b82f6">Won</EventButton>
-                            <EventButton onClick={() => tagEvent('Own Kickout Lost')} color="#ef4444">Lost</EventButton>
-                        </div>
-                    </div>
-
-                    {/* Opposition Kickouts */}
-                    <div style={{marginBottom: '20px'}}>
-                        <div style={{fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700', textTransform: 'uppercase'}}>
-                            Opposition Kickouts
-                        </div>
-                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
-                            <EventButton onClick={() => tagEvent('Opp Kickout Won')} color="#3b82f6">Won</EventButton>
-                            <EventButton onClick={() => tagEvent('Opp Kickout Lost')} color="#ef4444">Lost</EventButton>
-                        </div>
-                    </div>
-
-                    {/* Other Restarts */}
-                    <div style={{marginBottom: '20px'}}>
-                        <div style={{fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700', textTransform: 'uppercase'}}>
-                            Other Restarts
-                        </div>
-                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
-                            <EventButton onClick={() => tagEvent('Free Kick')} color="#3b82f6">Free Kick</EventButton>
-                            <EventButton onClick={() => tagEvent('Sideline')} color="#3b82f6">Sideline</EventButton>
-                            <EventButton onClick={() => tagEvent('Penalty')} color="#a855f7">Penalty</EventButton>
-                            <EventButton onClick={() => tagEvent('Throw-in')} color="#a855f7">Throw-in</EventButton>
-                        </div>
-                    </div>
-
-                    {/* Fouls */}
-                    <div style={{marginBottom: '20px'}}>
-                        <div style={{fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700', textTransform: 'uppercase'}}>
-                            Fouls
-                        </div>
-                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
-                            <EventButton onClick={() => tagEvent('Foul')} color="#f97316">Foul</EventButton>
-                            <EventButton onClick={() => tagEvent('Yellow Card')} color="#eab308">Yellow</EventButton>
-                            <EventButton onClick={() => tagEvent('Red Card')} color="#dc2626">Red</EventButton>
-                            <EventButton onClick={() => tagEvent('Black Card')} color="#1f2937">Black</EventButton>
-                        </div>
-                    </div>
-
-                    {/* Other */}
-                    <div style={{marginBottom: '20px'}}>
-                        <div style={{fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '700', textTransform: 'uppercase'}}>
-                            Other
-                        </div>
-                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
-                            <EventButton onClick={() => tagEvent('Substitution')} color="#64748b">Sub</EventButton>
-                            <EventButton onClick={() => tagEvent('Mark')} color="#64748b">Mark</EventButton>
-                            <EventButton onClick={() => tagEvent('Turnover')} color="#ef4444">Turnover</EventButton>
-                            <EventButton onClick={() => tagEvent('Blocked')} color="#06b6d4">Blocked</EventButton>
-                            <EventButton onClick={() => tagEvent('Short')} color="#ef4444">Short</EventButton>
-                        </div>
-                    </div>
-
-                    {/* Keyboard Shortcuts */}
-                    <div style={{marginTop: '16px', padding: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '11px', border: '1px solid rgba(255,255,255,0.1)'}}>
-                        <strong style={{display: 'block', marginBottom: '8px'}}>Keyboard Shortcuts:</strong>
-                        G: Goal • P: Point • W: Wide • S: Saved • F: Foul • C: Yellow Card • Space: Play/Pause
-                    </div>
-                </div>
+                <button onClick={handleSignOut} style={{background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit'}}>
+                    SIGN OUT
+                </button>
             </div>
 
-            {/* CENTER - Video Player */}
-            <div style={{flex: 1, display: 'flex', flexDirection: 'column', background: 'rgba(255,255,255,0.02)'}}>
-                {/* Top Bar */}
-                <div style={{background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <h1 style={{fontSize: '24px', fontWeight: '700'}}>Video Analysis</h1>
-                    <div style={{display: 'flex', gap: '12px'}}>
-                        <button onClick={saveProject} style={{padding: '10px 20px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '14px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>
-                            Save Project
-                        </button>
-                        <button onClick={exportCSV} style={{padding: '10px 20px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '14px', background: 'white', color: '#0066cc'}}>
-                            Export Analysis
-                        </button>
-                    </div>
-                </div>
-
-                {/* Video Container */}
-                <div style={{flex: 1, padding: '20px', display: 'flex', flexDirection: 'column'}}>
-                    <div style={{flex: 1, background: '#000', borderRadius: '12px', overflow: 'hidden', marginBottom: '16px'}}>
-                        <video
-                            ref={videoRef}
-                            src={videoUrl}
-                            onTimeUpdate={handleTimeUpdate}
-                            onLoadedMetadata={handleLoadedMetadata}
-                            style={{width: '100%', height: '100%', objectFit: 'contain'}}
-                        />
-                    </div>
-
-                    {/* Video Controls */}
-                    <div style={{background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', borderRadius: '12px', padding: '16px', border: '1px solid rgba(255,255,255,0.1)'}}>
-                        {/* Progress Bar */}
-                        <div 
-                            onClick={seekVideo}
+            {/* Main Container */}
+            <div style={{flex: 1, display: 'flex', overflow: 'hidden'}}>
+                {/* Sidebar */}
+                <div style={{width: '200px', background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,255,255,0.1)', padding: '24px 16px', overflowY: 'auto'}}>
+                    <div style={{fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: '700', textTransform: 'uppercase', marginBottom: '12px'}}>ANALYSIS</div>
+                    {['upload', 'matches', 'analysis'].map(tab => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
                             style={{
-                                height: '6px',
-                                background: 'rgba(255,255,255,0.2)',
-                                borderRadius: '3px',
-                                marginBottom: '16px',
+                                width: '100%',
+                                background: activeTab === tab ? 'rgba(255,255,255,0.15)' : 'transparent',
+                                border: 'none',
+                                color: 'white',
+                                padding: '12px 16px',
+                                borderRadius: '8px',
+                                textAlign: 'left',
                                 cursor: 'pointer',
-                                position: 'relative'
+                                fontWeight: '600',
+                                fontSize: '14px',
+                                marginBottom: '8px',
+                                fontFamily: 'inherit',
+                                textTransform: 'capitalize'
                             }}
                         >
-                            <div style={{
-                                height: '100%',
-                                background: 'white',
-                                borderRadius: '3px',
-                                width: `${(currentTime / duration) * 100}%`,
-                                position: 'relative'
-                            }}>
-                                <div style={{
-                                    position: 'absolute',
-                                    right: '-6px',
-                                    top: '50%',
-                                    transform: 'translateY(-50%)',
-                                    width: '12px',
-                                    height: '12px',
-                                    background: 'white',
-                                    borderRadius: '50%',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-                                }}></div>
+                            {tab === 'upload' && '🎥 '} {tab === 'matches' && '📁 '} {tab === 'analysis' && '⚡ '} {tab}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Main Content Area */}
+                <div style={{flex: 1, padding: '24px', overflowY: 'auto'}}>
+                    {/* UPLOAD TAB */}
+                    {activeTab === 'upload' && (
+                        <div style={{maxWidth: '800px', margin: '0 auto'}}>
+                            <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '32px', textTransform: 'uppercase'}}>Upload Match Video</h1>
+                            
+                            {/* Sport Selector */}
+                            <div style={{display: 'flex', gap: '12px', marginBottom: '32px'}}>
+                                <button
+                                    onClick={() => setSport('football')}
+                                    style={{
+                                        flex: 1,
+                                        padding: '16px',
+                                        background: sport === 'football' ? 'white' : 'rgba(255,255,255,0.1)',
+                                        color: sport === 'football' ? '#00833E' : 'white',
+                                        border: '2px solid ' + (sport === 'football' ? 'white' : 'rgba(255,255,255,0.3)'),
+                                        borderRadius: '12px',
+                                        cursor: 'pointer',
+                                        fontSize: '16px',
+                                        fontWeight: '700',
+                                        fontFamily: 'inherit',
+                                        textTransform: 'uppercase'
+                                    }}
+                                >
+                                    FOOTBALL
+                                </button>
+                                <button
+                                    onClick={() => setSport('hurling')}
+                                    style={{
+                                        flex: 1,
+                                        padding: '16px',
+                                        background: sport === 'hurling' ? 'white' : 'rgba(255,255,255,0.1)',
+                                        color: sport === 'hurling' ? '#00833E' : 'white',
+                                        border: '2px solid ' + (sport === 'hurling' ? 'white' : 'rgba(255,255,255,0.3)'),
+                                        borderRadius: '12px',
+                                        cursor: 'pointer',
+                                        fontSize: '16px',
+                                        fontWeight: '700',
+                                        fontFamily: 'inherit',
+                                        textTransform: 'uppercase'
+                                    }}
+                                >
+                                    HURLING
+                                </button>
                             </div>
                             
-                            {/* Event markers on timeline */}
-                            {events.map(event => (
-                                <div
-                                    key={event.id}
-                                    style={{
-                                        position: 'absolute',
-                                        left: `${(event.time / duration) * 100}%`,
-                                        top: '-4px',
-                                        width: '4px',
-                                        height: '14px',
-                                        background: event.type === 'Goal' ? '#10b981' : event.type === 'Point' || event.type === '2 Point' ? '#f59e0b' : event.type === 'Foul' ? '#f97316' : 'white',
-                                        borderRadius: '2px',
-                                        cursor: 'pointer'
-                                    }}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (videoRef.current) videoRef.current.currentTime = event.time;
-                                    }}
-                                />
-                            ))}
-                        </div>
-
-                        {/* Control Buttons */}
-                        <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
-                            <button onClick={togglePlayPause} style={{width: '48px', height: '48px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '18px'}}>
-                                {isPlaying ? '⏸' : '▶'}
-                            </button>
-                            <span style={{color: 'white', fontSize: '14px', fontWeight: '600'}}>
-                                {formatTime(currentTime)} / {formatTime(duration)}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* RIGHT PANEL - Statistics & Events */}
-            <div style={{width: '320px', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', borderLeft: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', height: '100vh', overflowY: 'auto', padding: '20px'}}>
-                {/* Scoreboard */}
-                <div style={{background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '20px', overflow: 'hidden'}}>
-                    <div style={{padding: '20px', background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.1)', fontWeight: '700', fontSize: '16px'}}>
-                        Scoreboard
-                    </div>
-                    <div style={{padding: '24px'}}>
-                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
-                            <div style={{textAlign: 'center'}}>
-                                <div style={{fontSize: '14px', color: 'rgba(255,255,255,0.6)', marginBottom: '8px', fontWeight: '600'}}>HOME</div>
-                                <div style={{fontSize: '48px', fontWeight: '900', lineHeight: '1'}} id="homeScore">
-                                    {scores.home.goals}-{scores.home.points.toString().padStart(2, '0')}
+                            {/* Team Names */}
+                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px'}}>
+                                <div>
+                                    <label style={{display: 'block', color: 'white', fontWeight: '600', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase'}}>Home Team</label>
+                                    <input
+                                        type="text"
+                                        value={homeTeam}
+                                        onChange={(e) => setHomeTeam(e.target.value)}
+                                        style={{width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '16px', fontFamily: 'inherit'}}
+                                    />
                                 </div>
-                                <div style={{fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginTop: '8px'}}>
-                                    ({scores.home.goals * 3 + scores.home.points} pts)
+                                <div>
+                                    <label style={{display: 'block', color: 'white', fontWeight: '600', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase'}}>Away Team</label>
+                                    <input
+                                        type="text"
+                                        value={awayTeam}
+                                        onChange={(e) => setAwayTeam(e.target.value)}
+                                        style={{width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '16px', fontFamily: 'inherit'}}
+                                    />
                                 </div>
                             </div>
-                            <div style={{fontSize: '24px', color: 'rgba(255,255,255,0.5)', fontWeight: '900'}}>VS</div>
-                            <div style={{textAlign: 'center'}}>
-                                <div style={{fontSize: '14px', color: 'rgba(255,255,255,0.6)', marginBottom: '8px', fontWeight: '600'}}>AWAY</div>
-                                <div style={{fontSize: '48px', fontWeight: '900', lineHeight: '1'}} id="awayScore">
-                                    {scores.away.goals}-{scores.away.points.toString().padStart(2, '0')}
+                            
+                            {/* Upload Area */}
+                            <div style={{background: 'rgba(255,255,255,0.1)', border: '2px dashed rgba(255,255,255,0.3)', borderRadius: '16px', padding: '64px 32px', textAlign: 'center'}}>
+                                <input type="file" accept="video/*" onChange={handleVideoUpload} disabled={uploading} style={{display: 'none'}} id="video-upload" />
+                                <label htmlFor="video-upload" style={{cursor: uploading ? 'not-allowed' : 'pointer', display: 'block'}}>
+                                    <div style={{fontSize: '64px', marginBottom: '24px'}}>🎥</div>
+                                    <h3 style={{color: 'white', fontSize: '24px', fontWeight: '700', marginBottom: '12px'}}>
+                                        {uploading ? 'Uploading...' : 'Click to Upload Video'}
+                                    </h3>
+                                    <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '16px'}}>MP4, MOV, AVI • Max 2GB</p>
+                                </label>
+                            </div>
+
+                            {videoFile && (
+                                <div style={{marginTop: '32px', padding: '24px', background: 'rgba(255,255,255,0.1)', borderRadius: '12px'}}>
+                                    <p style={{color: 'white', fontWeight: '600', marginBottom: '16px'}}>✓ Uploaded: {videoFile.name}</p>
+                                    <button onClick={() => setActiveTab('analysis')} style={{background: 'white', color: '#00833E', padding: '12px 24px', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit'}}>
+                                        START ANALYSIS
+                                    </button>
                                 </div>
-                                <div style={{fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginTop: '8px'}}>
-                                    ({scores.away.goals * 3 + scores.away.points} pts)
+                            )}
+                        </div>
+                    )}
+
+                    {/* MATCHES TAB */}
+                    {activeTab === 'matches' && (
+                        <div>
+                            <h1 style={{fontSize: '40px', fontWeight: '900', color: 'white', marginBottom: '32px', textTransform: 'uppercase'}}>My Matches</h1>
+                            {matches.length > 0 ? (
+                                <div style={{display: 'grid', gap: '16px'}}>
+                                    {matches.map(match => (
+                                        <div
+                                            key={match.id}
+                                            onClick={() => {
+                                                setCurrentMatch(match);
+                                                setVideoUrl(match.video_url);
+                                                setHomeTeam(match.home_team || 'Home Team');
+                                                setAwayTeam(match.away_team || 'Away Team');
+                                                setEvents(match.events || []);
+                                                setSport(match.sport || 'football');
+                                                setHomeGoals(Math.floor((match.home_score || 0) / 3));
+                                                setHomePoints((match.home_score || 0) % 3);
+                                                setAwayGoals(Math.floor((match.away_score || 0) / 3));
+                                                setAwayPoints((match.away_score || 0) % 3);
+                                                setActiveTab('analysis');
+                                            }}
+                                            style={{background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '24px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)'}}
+                                        >
+                                            <h3 style={{color: 'white', fontSize: '20px', fontWeight: '700', marginBottom: '8px'}}>{match.title}</h3>
+                                            <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '14px'}}>
+                                                {new Date(match.created_at).toLocaleDateString()} • {(match.events || []).length} events • {match.sport}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div style={{background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '48px', textAlign: 'center'}}>
+                                    <p style={{color: 'rgba(255,255,255,0.8)', fontSize: '18px', marginBottom: '24px'}}>No matches yet</p>
+                                    <button onClick={() => setActiveTab('upload')} style={{background: 'white', color: '#00833E', padding: '12px 24px', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit'}}>
+                                        UPLOAD VIDEO
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* ANALYSIS TAB */}
+                    {activeTab === 'analysis' && (
+                        videoUrl ? (
+                            <div style={{display: 'grid', gridTemplateColumns: '1fr 360px', gap: '24px', height: 'calc(100vh - 120px)'}}>
+                                {/* Left Column - Video & Controls */}
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
+                                    {/* Video Player */}
+                                    <div style={{background: 'rgba(0,0,0,0.3)', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)'}}>
+                                        <video
+                                            ref={(ref) => { if (ref) { videoRef.current = ref; } }}
+                                            src={videoUrl}
+                                            style={{width: '100%', display: 'block'}}
+                                        />
+                                    </div>
+
+                                    {/* Video Controls */}
+                                    <div style={{background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(255,255,255,0.1)'}}>
+                                        <div style={{display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px'}}>
+                                            <button onClick={togglePlayPause} style={{width: '48px', height: '48px', borderRadius: '50%', background: 'white', border: 'none', color: '#00833E', cursor: 'pointer', fontSize: '18px', fontWeight: '700'}}>
+                                                {isPlaying ? '⏸' : '▶'}
+                                            </button>
+                                            <button onClick={() => skipTime(-5)} style={{background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit'}}>
+                                                -5s
+                                            </button>
+                                            <button onClick={() => skipTime(5)} style={{background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit'}}>
+                                                +5s
+                                            </button>
+                                            <div style={{color: 'white', fontFamily: 'monospace', fontSize: '16px', fontWeight: '600'}}>
+                                                {formatTime(currentTime)} / {formatTime(duration)}
+                                            </div>
+                                            <select value={playbackSpeed} onChange={(e) => changeSpeed(parseFloat(e.target.value))} style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px', borderRadius: '8px', fontFamily: 'inherit'}}>
+                                                <option value="0.25">0.25x</option>
+                                                <option value="0.5">0.5x</option>
+                                                <option value="0.75">0.75x</option>
+                                                <option value="1">1x</option>
+                                                <option value="1.25">1.25x</option>
+                                                <option value="1.5">1.5x</option>
+                                                <option value="2">2x</option>
+                                            </select>
+                                        </div>
+                                        
+                                        {/* Progress Bar */}
+                                        <div style={{height: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px', cursor: 'pointer', position: 'relative'}}>
+                                            <div style={{height: '100%', background: 'white', borderRadius: '4px', width: `${(currentTime / duration) * 100}%`}}></div>
+                                        </div>
+                                    </div>
+
+                                    {/* Scoreboard */}
+                                    <div style={{background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '24px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-around'}}>
+                                        <div style={{textAlign: 'center'}}>
+                                            <div style={{color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600'}}>{homeTeam}</div>
+                                            <div style={{color: 'white', fontSize: '48px', fontWeight: '900'}}>{homeGoals}-{homePoints}</div>
+                                        </div>
+                                        <div style={{color: 'rgba(255,255,255,0.6)', fontSize: '24px', fontWeight: '600', alignSelf: 'center'}}>VS</div>
+                                        <div style={{textAlign: 'center'}}>
+                                            <div style={{color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600'}}>{awayTeam}</div>
+                                            <div style={{color: 'white', fontSize: '48px', fontWeight: '900'}}>{awayGoals}-{awayPoints}</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Event Tagging */}
+                                    <div style={{background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '24px', border: '1px solid rgba(255,255,255,0.1)'}}>
+                                        {/* Team Selector */}
+                                        <div style={{display: 'flex', gap: '12px', marginBottom: '24px'}}>
+                                            <button onClick={() => setSelectedTeam('home')} style={{flex: 1, padding: '12px', background: selectedTeam === 'home' ? 'white' : 'rgba(255,255,255,0.1)', color: selectedTeam === 'home' ? '#00833E' : 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase'}}>
+                                                {homeTeam}
+                                            </button>
+                                            <button onClick={() => setSelectedTeam('away')} style={{flex: 1, padding: '12px', background: selectedTeam === 'away' ? 'white' : 'rgba(255,255,255,0.1)', color: selectedTeam === 'away' ? '#00833E' : 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase'}}>
+                                                {awayTeam}
+                                            </button>
+                                        </div>
+                                        
+                                        {/* Event Buttons */}
+                                        {Object.entries(currentEvents).map(([category, eventList]) => (
+                                            <div key={category} style={{marginBottom: '20px'}}>
+                                                <div style={{color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', marginBottom: '12px'}}>{category}</div>
+                                                <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px'}}>
+                                                    {eventList.map(event => (
+                                                        <button
+                                                            key={event.id}
+                                                            onClick={() => tagEvent(event, selectedTeam)}
+                                                            style={{
+                                                                background: event.color,
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                padding: '10px',
+                                                                borderRadius: '8px',
+                                                                cursor: 'pointer',
+                                                                fontSize: '13px',
+                                                                fontWeight: '600',
+                                                                fontFamily: 'inherit'
+                                                            }}
+                                                        >
+                                                            {event.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Right Column - Events Timeline */}
+                                <div style={{background: 'rgba(0,0,0,0.3)', borderRadius: '16px', padding: '24px', border: '1px solid rgba(255,255,255,0.1)', overflowY: 'auto'}}>
+                                    <h3 style={{color: 'white', fontSize: '20px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase'}}>Events ({events.length})</h3>
+                                    {events.length > 0 ? (
+                                        <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+                                            {events.slice().reverse().map(event => (
+                                                <div key={event.id} style={{background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px', cursor: 'pointer', border: `1px solid ${event.color}20`}}>
+                                                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                                                        <div style={{color: 'white', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                                            <div style={{width: '12px', height: '12px', borderRadius: '50%', background: event.color}}></div>
+                                                            {event.label}
+                                                        </div>
+                                                        <button onClick={(e) => { e.stopPropagation(); deleteEvent(event.id); }} style={{background: 'rgba(255,0,0,0.2)', border: 'none', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px'}}>✕</button>
+                                                    </div>
+                                                    <div style={{color: 'rgba(255,255,255,0.6)', fontSize: '12px', marginBottom: '4px'}}>{event.team === 'home' ? homeTeam : awayTeam}</div>
+                                                    <button
+                                                        onClick={() => seekToEvent(event.timestamp)}
+                                                        style={{background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontFamily: 'monospace', cursor: 'pointer', padding: 0}}
+                                                    >
+                                                        ▶ {formatTime(event.timestamp)}
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '14px', textAlign: 'center', padding: '32px 0'}}>No events tagged yet. Tag events using the buttons on the left.</p>
+                                    )}
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Statistics */}
-                <div style={{background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '20px', overflow: 'hidden'}}>
-                    <div style={{padding: '20px', background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.1)', fontWeight: '700', fontSize: '16px'}}>
-                        Statistics
-                    </div>
-                    <div style={{padding: '20px'}}>
-                        <StatRow label="Total Events" value={events.length} />
-                        <StatRow label="Goals" value={stats.Goal} />
-                        <StatRow label="Points" value={stats.Point + stats['2 Point']} />
-                        <StatRow label="Fouls" value={stats.Foul + stats['Yellow Card'] + stats['Red Card'] + stats['Black Card']} />
-                        <StatRow label="Own Kickouts Won" value={stats['Own Kickout Won']} />
-                        <StatRow label="Opp Kickouts Won" value={stats['Opp Kickout Won']} />
-                    </div>
-                </div>
-
-                {/* Recent Events */}
-                <div style={{background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', flex: 1}}>
-                    <div style={{padding: '20px', background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.1)', fontWeight: '700', fontSize: '16px'}}>
-                        Recent Events
-                    </div>
-                    <div style={{padding: '20px', maxHeight: '220px', overflowY: 'auto'}}>
-                        {events.length === 0 ? (
-                            <p style={{opacity: '0.6', fontSize: '13px', textAlign: 'center'}}>No events tagged yet</p>
                         ) : (
-                            events.slice(-5).reverse().map(event => (
-                                <div key={event.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'rgba(255,255,255,0.05)', marginBottom: '6px', borderRadius: '8px', fontSize: '13px', border: '1px solid rgba(255,255,255,0.1)'}}>
-                                    <span>{event.type}</span>
-                                    <span style={{fontFamily: 'monospace', color: 'rgba(255,255,255,0.8)', fontWeight: '600'}}>{event.timeString}</span>
-                                </div>
-                            ))
-                        )}
-                    </div>
+                            <div style={{background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '48px', textAlign: 'center'}}>
+                                <p style={{color: 'rgba(255,255,255,0.8)', fontSize: '18px', marginBottom: '24px'}}>
+                                    Upload a video to start your analysis
+                                </p>
+                                <button onClick={() => setActiveTab('upload')} style={{background: 'white', color: '#00833E', padding: '12px 24px', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit'}}>
+                                    UPLOAD VIDEO
+                                </button>
+                            </div>
+                        )
+                    )}
                 </div>
             </div>
-        </div>
-    );
-}
-
-// Event Button Component
-function EventButton({ onClick, color, children }) {
-    return (
-        <button
-            onClick={onClick}
-            style={{
-                padding: '12px 8px',
-                background: `${color}33`,
-                border: `2px solid ${color}`,
-                borderRadius: '8px',
-                color: 'white',
-                fontWeight: '700',
-                fontSize: '12px',
-                cursor: 'pointer',
-                textAlign: 'center',
-                transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = `${color}66`}
-            onMouseLeave={(e) => e.currentTarget.style.background = `${color}33`}
-        >
-            {children}
-        </button>
-    );
-}
-
-// Stat Row Component
-function StatRow({ label, value }) {
-    return (
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', fontSize: '13px'}}>
-            <span style={{color: 'rgba(255,255,255,0.7)'}}>{label}</span>
-            <span style={{fontWeight: '900', fontSize: '16px'}} id={label.replace(/\s+/g, '')}>{value}</span>
         </div>
     );
 }
