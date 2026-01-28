@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch }) {
+function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch, setActivePage }) {
     const videoRef = useRef(null);
     const [videoUrl, setVideoUrl] = useState('');
     const [uploading, setUploading] = useState(false);
@@ -136,8 +136,9 @@ function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch }) {
         
         setEventNotes('');
         
+        // Update local match object
         if (currentMatch) {
-            await supabase.from('matches').update({ events: updatedEvents }).eq('id', currentMatch.id);
+            setCurrentMatch({...currentMatch, events: updatedEvents});
         }
     };
 
@@ -153,7 +154,7 @@ function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch }) {
         const updatedEvents = events.filter(e => e.id !== eventId);
         setEvents(updatedEvents);
         if (currentMatch) {
-            await supabase.from('matches').update({ events: updatedEvents }).eq('id', currentMatch.id);
+            setCurrentMatch({...currentMatch, events: updatedEvents});
         }
     };
 
@@ -240,12 +241,12 @@ function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch }) {
                         <div style={{background: 'rgba(255,255,255,0.08)', borderRadius: '12px', padding: '20px', marginBottom: '20px'}}>
                             <div style={{fontSize: '13px', fontWeight: '700', color: 'white', marginBottom: '16px', textTransform: 'uppercase'}}>Match Setup</div>
                             <div style={{display: 'flex', gap: '8px', marginBottom: '12px'}}>
-                                <button onClick={() => setSport('football')} style={{flex: 1, padding: '10px', background: sport === 'football' ? 'white' : 'rgba(255,255,255,0.1)', color: sport === 'football' ? '#00833E' : 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'inherit'}}>Football</button>
-                                <button onClick={() => setSport('hurling')} style={{flex: 1, padding: '10px', background: sport === 'hurling' ? 'white' : 'rgba(255,255,255,0.1)', color: sport === 'hurling' ? '#00833E' : 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'inherit'}}>Hurling</button>
+                                <button onClick={() => { setSport('football'); if (currentMatch) setCurrentMatch({...currentMatch, sport: 'football'}); }} style={{flex: 1, padding: '10px', background: sport === 'football' ? 'white' : 'rgba(255,255,255,0.1)', color: sport === 'football' ? '#00833E' : 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'inherit'}}>Football</button>
+                                <button onClick={() => { setSport('hurling'); if (currentMatch) setCurrentMatch({...currentMatch, sport: 'hurling'}); }} style={{flex: 1, padding: '10px', background: sport === 'hurling' ? 'white' : 'rgba(255,255,255,0.1)', color: sport === 'hurling' ? '#00833E' : 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'inherit'}}>Hurling</button>
                             </div>
                             <div style={{display: 'flex', gap: '8px'}}>
-                                <input type="text" value={homeTeam} onChange={(e) => setHomeTeam(e.target.value)} placeholder="Home Team" style={{flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', fontSize: '12px', fontFamily: 'inherit'}} />
-                                <input type="text" value={awayTeam} onChange={(e) => setAwayTeam(e.target.value)} placeholder="Away Team" style={{flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', fontSize: '12px', fontFamily: 'inherit'}} />
+                                <input type="text" value={homeTeam} onChange={(e) => { setHomeTeam(e.target.value); if (currentMatch) setCurrentMatch({...currentMatch, home_team: e.target.value}); }} placeholder="Home Team" style={{flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', fontSize: '12px', fontFamily: 'inherit'}} />
+                                <input type="text" value={awayTeam} onChange={(e) => { setAwayTeam(e.target.value); if (currentMatch) setCurrentMatch({...currentMatch, away_team: e.target.value}); }} placeholder="Away Team" style={{flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', fontSize: '12px', fontFamily: 'inherit'}} />
                             </div>
                         </div>
 
@@ -283,27 +284,84 @@ function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch }) {
                     </div>
 
                     {/* CENTER - Video */}
-                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px'}}>
-                        <div style={{flex: 1, background: 'rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden'}}>
-                            <video ref={videoRef} src={videoUrl} style={{width: '100%', height: '100%'}} />
+                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', padding: '20px', minHeight: 0}}>
+                        <div style={{flex: 1, background: 'rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px', minHeight: 0}}>
+                            <video ref={videoRef} src={videoUrl} controls style={{width: '100%', height: '100%', objectFit: 'contain'}} />
                         </div>
 
-                        <div style={{background: 'rgba(255,255,255,0.08)', borderRadius: '12px', padding: '20px', height: '120px'}}>
-                            <h4 style={{marginBottom: '16px', fontWeight: '700', color: 'white', fontSize: '14px'}}>Event Timeline</h4>
-                            <div style={{height: '60px', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', position: 'relative'}}>
-                                {events.map(event => (
-                                    <div key={event.id} onClick={() => seekToEvent(event.timestamp)} style={{position: 'absolute', left: `${(event.timestamp / duration) * 100}%`, top: '50%', transform: 'translate(-50%, -50%)', width: '8px', height: '40px', background: event.color, borderRadius: '4px', cursor: 'pointer'}} />
-                                ))}
+                        <div style={{background: 'rgba(255,255,255,0.08)', borderRadius: '12px', padding: '20px', marginBottom: '20px', flexShrink: 0}}>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
+                                <h4 style={{fontWeight: '700', color: 'white', fontSize: '14px'}}>Swimlane Timeline ({events.length} events)</h4>
+                                <button onClick={() => setActivePage('reports')} style={{padding: '8px 16px', background: 'white', border: 'none', color: '#00833E', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', fontFamily: 'inherit'}}>VIEW REPORT</button>
+                            </div>
+                            
+                            <div style={{maxHeight: '280px', overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '12px', marginBottom: '16px'}}>
+                                {Object.entries(eventsByCategory).map(([categoryKey, categoryEvents]) => {
+                                    if (categoryEvents.length === 0) return null;
+                                    
+                                    const categoryNames = {
+                                        scoring: 'Scoring',
+                                        own_kickouts: 'Own Kickouts',
+                                        opp_kickouts: 'Opp Kickouts',
+                                        own_puckouts: 'Own Puckouts',
+                                        opp_puckouts: 'Opp Puckouts',
+                                        restarts: 'Restarts',
+                                        fouls: 'Fouls',
+                                        other: 'Other'
+                                    };
+                                    
+                                    const eventsInCategory = events.filter(e => {
+                                        const eventDef = currentEvents.find(ce => ce.id === e.type);
+                                        return eventDef && eventDef.category === categoryKey;
+                                    });
+                                    
+                                    if (eventsInCategory.length === 0) return null;
+                                    
+                                    return (
+                                        <div key={categoryKey} style={{marginBottom: '12px'}}>
+                                            <div style={{fontSize: '11px', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', fontWeight: '600', textTransform: 'uppercase'}}>{categoryNames[categoryKey]}</div>
+                                            <div style={{height: '40px', background: 'rgba(0,0,0,0.4)', borderRadius: '6px', position: 'relative'}}>
+                                                {eventsInCategory.map(event => (
+                                                    <div 
+                                                        key={event.id} 
+                                                        onClick={() => seekToEvent(event.timestamp)} 
+                                                        title={`${event.label} - ${formatTime(event.timestamp)}`}
+                                                        style={{
+                                                            position: 'absolute', 
+                                                            left: `${(event.timestamp / duration) * 100}%`, 
+                                                            top: '50%', 
+                                                            transform: 'translate(-50%, -50%)', 
+                                                            width: '6px', 
+                                                            height: '28px', 
+                                                            background: event.color, 
+                                                            borderRadius: '3px', 
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            
+                            <div style={{display: 'flex', gap: '12px', justifyContent: 'center'}}>
+                                <button onClick={() => { if (videoRef.current) videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10); }} style={{padding: '10px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'inherit'}}>← 10s</button>
+                                <button onClick={() => { if (videoRef.current) videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 5); }} style={{padding: '10px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'inherit'}}>← 5s</button>
+                                <button onClick={() => { if (videoRef.current) videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 0.04); }} style={{padding: '10px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'inherit'}}>← Frame</button>
+                                <button onClick={togglePlayPause} style={{padding: '10px 24px', background: 'white', border: 'none', color: '#00833E', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '16px', fontFamily: 'inherit'}}>{isPlaying ? '⏸ PAUSE' : '▶ PLAY'}</button>
+                                <button onClick={() => { if (videoRef.current) videoRef.current.currentTime = Math.min(duration, videoRef.current.currentTime + 0.04); }} style={{padding: '10px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'inherit'}}>Frame →</button>
+                                <button onClick={() => { if (videoRef.current) videoRef.current.currentTime = Math.min(duration, videoRef.current.currentTime + 5); }} style={{padding: '10px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'inherit'}}>5s →</button>
+                                <button onClick={() => { if (videoRef.current) videoRef.current.currentTime = Math.min(duration, videoRef.current.currentTime + 10); }} style={{padding: '10px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'inherit'}}>10s →</button>
                             </div>
                         </div>
 
-                        <div style={{background: 'rgba(255,255,255,0.08)', borderRadius: '12px', padding: '20px', display: 'flex', alignItems: 'center', gap: '20px'}}>
-                            <button onClick={togglePlayPause} style={{width: '56px', height: '56px', borderRadius: '50%', background: 'white', border: 'none', color: '#00833E', cursor: 'pointer', fontSize: '20px'}}>{isPlaying ? '⏸' : '▶'}</button>
+                        <div style={{background: 'rgba(255,255,255,0.08)', borderRadius: '12px', padding: '20px', display: 'flex', alignItems: 'center', gap: '20px', flexShrink: 0}}>
                             <span style={{fontFamily: 'monospace', fontSize: '16px', color: 'white', fontWeight: '600'}}>{formatTime(currentTime)} / {formatTime(duration)}</span>
-                            <div style={{flex: 1, height: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px'}}>
+                            <div style={{flex: 1, height: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px', cursor: 'pointer'}} onClick={(e) => { if (videoRef.current) { const rect = e.currentTarget.getBoundingClientRect(); const x = e.clientX - rect.left; videoRef.current.currentTime = (x / rect.width) * duration; }}}>
                                 <div style={{height: '100%', background: 'white', borderRadius: '4px', width: `${(currentTime / duration) * 100}%`}}></div>
                             </div>
-                            <select value={playbackSpeed} onChange={(e) => { if (videoRef.current) videoRef.current.playbackRate = parseFloat(e.target.value); setPlaybackSpeed(parseFloat(e.target.value)); }} style={{padding: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '8px', fontFamily: 'inherit'}}>
+                            <select value={playbackSpeed} onChange={(e) => { if (videoRef.current) videoRef.current.playbackRate = parseFloat(e.target.value); setPlaybackSpeed(parseFloat(e.target.value)); }} style={{padding: '8px 12px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '8px', fontFamily: 'inherit', fontWeight: '600'}}>
                                 {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 2].map(speed => <option key={speed} value={speed}>{speed}x</option>)}
                             </select>
                         </div>
