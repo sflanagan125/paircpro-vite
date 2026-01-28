@@ -19,6 +19,8 @@ function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch, setActiv
     const [duration, setDuration] = useState(0);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
     const [activeView, setActiveView] = useState('upload');
+    const [sortColumn, setSortColumn] = useState('time');
+    const [sortDirection, setSortDirection] = useState('asc');
 
     const footballEvents = [
         { id: 'goal', label: 'Goal', color: '#10b981', category: 'scoring' },
@@ -73,6 +75,57 @@ function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch, setActiv
         restarts: currentEvents.filter(e => e.category === 'restarts'),
         fouls: currentEvents.filter(e => e.category === 'fouls'),
         other: currentEvents.filter(e => e.category === 'other')
+    };
+
+    const handleSort = (column) => {
+        if (sortColumn === column) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortColumn(column);
+            setSortDirection('asc');
+        }
+    };
+
+    const sortedEvents = [...events].sort((a, b) => {
+        let comparison = 0;
+        switch(sortColumn) {
+            case 'time':
+                comparison = a.timestamp - b.timestamp;
+                break;
+            case 'event':
+                comparison = a.label.localeCompare(b.label);
+                break;
+            case 'team':
+                comparison = a.team.localeCompare(b.team);
+                break;
+            case 'notes':
+                comparison = (a.notes || '').localeCompare(b.notes || '');
+                break;
+            default:
+                comparison = 0;
+        }
+        return sortDirection === 'asc' ? comparison : -comparison;
+    });
+
+    const exportCSV = () => {
+        const csv = [
+            ['#', 'Time', 'Event', 'Team', 'Notes'],
+            ...sortedEvents.map((e, idx) => [
+                idx + 1,
+                formatTime(e.timestamp),
+                e.label,
+                e.team === 'home' ? homeTeam : awayTeam,
+                e.notes || ''
+            ])
+        ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${homeTeam}_vs_${awayTeam}_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleVideoUpload = async (e) => {
@@ -382,21 +435,55 @@ function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch, setActiv
                         </div>
 
                         <div style={{background: 'rgba(255,255,255,0.08)', borderRadius: '12px', padding: '20px'}}>
-                            <div style={{fontSize: '13px', fontWeight: '700', color: 'white', marginBottom: '16px', textTransform: 'uppercase'}}>Recent Events ({events.length})</div>
-                            <div style={{maxHeight: '400px', overflowY: 'auto'}}>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
+                                <div style={{fontSize: '13px', fontWeight: '700', color: 'white', textTransform: 'uppercase'}}>Event List ({events.length})</div>
+                                {events.length > 0 && (
+                                    <button onClick={exportCSV} style={{padding: '6px 12px', background: 'white', border: 'none', color: '#00833E', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '11px', fontFamily: 'inherit'}}>EXPORT CSV</button>
+                                )}
+                            </div>
+                            <div style={{maxHeight: '500px', overflowY: 'auto'}}>
                                 {events.length === 0 ? (
                                     <p style={{opacity: 0.6, fontSize: '13px', textAlign: 'center', color: 'rgba(255,255,255,0.7)'}}>No events tagged yet</p>
                                 ) : (
-                                    events.slice().reverse().map(event => (
-                                        <div key={event.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start', padding: '12px', background: 'rgba(255,255,255,0.05)', marginBottom: '6px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer'}} onClick={() => seekToEvent(event.timestamp)}>
-                                            <div style={{flex: 1}}>
-                                                <div style={{fontWeight: '600', color: 'white', marginBottom: '4px'}}>{event.label} - {event.team === 'home' ? homeTeam : awayTeam}</div>
-                                                {event.notes && <div style={{fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginBottom: '4px'}}>{event.notes}</div>}
-                                                <div style={{fontFamily: 'monospace', color: 'rgba(255,255,255,0.8)', fontWeight: '600', fontSize: '12px'}}>{formatTime(event.timestamp)}</div>
-                                            </div>
-                                            <button onClick={(e) => { e.stopPropagation(); deleteEvent(event.id); }} style={{background: 'rgba(255,0,0,0.2)', border: 'none', color: 'white', padding: '6px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px'}}>✕</button>
-                                        </div>
-                                    ))
+                                    <table style={{width: '100%', borderCollapse: 'collapse', fontSize: '12px'}}>
+                                        <thead style={{position: 'sticky', top: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1}}>
+                                            <tr>
+                                                <th style={{padding: '10px 8px', borderBottom: '2px solid rgba(255,255,255,0.2)', color: 'white', fontWeight: '700', textAlign: 'left', width: '30px'}}>#</th>
+                                                <th onClick={() => handleSort('time')} style={{cursor: 'pointer', padding: '10px 8px', borderBottom: '2px solid rgba(255,255,255,0.2)', color: 'white', fontWeight: '700', textAlign: 'left', width: '70px'}}>
+                                                    Time {sortColumn === 'time' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                                </th>
+                                                <th onClick={() => handleSort('event')} style={{cursor: 'pointer', padding: '10px 8px', borderBottom: '2px solid rgba(255,255,255,0.2)', color: 'white', fontWeight: '700', textAlign: 'left'}}>
+                                                    Event {sortColumn === 'event' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                                </th>
+                                                <th onClick={() => handleSort('team')} style={{cursor: 'pointer', padding: '10px 8px', borderBottom: '2px solid rgba(255,255,255,0.2)', color: 'white', fontWeight: '700', textAlign: 'left', width: '60px'}}>
+                                                    Team {sortColumn === 'team' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                                </th>
+                                                <th onClick={() => handleSort('notes')} style={{cursor: 'pointer', padding: '10px 8px', borderBottom: '2px solid rgba(255,255,255,0.2)', color: 'white', fontWeight: '700', textAlign: 'left'}}>
+                                                    Notes {sortColumn === 'notes' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                                </th>
+                                                <th style={{padding: '10px 8px', borderBottom: '2px solid rgba(255,255,255,0.2)', color: 'white', fontWeight: '700', textAlign: 'center', width: '80px'}}>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {sortedEvents.map((event, idx) => (
+                                                <tr key={event.id} style={{cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.1)', transition: 'background 0.2s'}} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                                    <td style={{padding: '10px 8px', color: 'rgba(255,255,255,0.6)', fontWeight: '600'}}>{idx + 1}</td>
+                                                    <td style={{padding: '10px 8px', color: 'white', fontFamily: 'monospace', fontWeight: '600'}}>{formatTime(event.timestamp)}</td>
+                                                    <td style={{padding: '10px 8px', color: 'white', fontWeight: '600'}}>{event.label}</td>
+                                                    <td style={{padding: '10px 8px'}}>
+                                                        <span style={{padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '600', background: event.team === 'home' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.2)', color: event.team === 'home' ? '#10b981' : '#3b82f6'}}>
+                                                            {event.team === 'home' ? 'Home' : 'Away'}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{padding: '10px 8px', color: 'rgba(255,255,255,0.7)', fontSize: '11px', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{event.notes}</td>
+                                                    <td style={{padding: '10px 8px', textAlign: 'center'}}>
+                                                        <button onClick={() => seekToEvent(event.timestamp)} style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', marginRight: '4px', fontWeight: '600'}}>▶</button>
+                                                        <button onClick={(e) => { e.stopPropagation(); deleteEvent(event.id); }} style={{background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: '600'}}>✕</button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 )}
                             </div>
                         </div>
