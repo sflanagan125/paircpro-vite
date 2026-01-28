@@ -85,21 +85,20 @@ function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch }) {
             // Create local URL - video stays in browser
             const localUrl = URL.createObjectURL(file);
             console.log('Local URL created:', localUrl);
-            setVideoUrl(localUrl);
             
-            // Create temporary match object
+            // Create temporary match object WITH blob URL
             const tempMatch = {
                 id: Date.now(),
                 title: file.name,
                 home_team: homeTeam,
                 away_team: awayTeam,
                 sport: sport,
-                events: []
+                events: [],
+                video_url: localUrl
             };
-            console.log('Setting match and switching to video view');
+            console.log('Setting match:', tempMatch);
             setCurrentMatch(tempMatch);
-            setActiveView('video');
-            console.log('activeView set to video, videoUrl:', localUrl);
+            // activeView will be set by useEffect
         } catch (error) {
             console.error('Upload error:', error);
             alert('Failed to load video: ' + error.message);
@@ -196,12 +195,12 @@ function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch }) {
             setAwayTeam(currentMatch.away_team || 'Away Team');
             setEvents(currentMatch.events || []);
             setSport(currentMatch.sport || 'football');
-            setActiveView('video');
+            if (currentMatch.video_url) setActiveView('video');
         }
     }, [currentMatch]);
 
     return (
-        <>
+        <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
             {activeView === 'upload' && (
                 <div style={{flex: 1, padding: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                     <div style={{maxWidth: '800px', width: '100%'}}>
@@ -235,7 +234,7 @@ function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch }) {
             )}
 
             {activeView === 'video' && videoUrl && (
-                <div style={{flex: 1, display: 'flex', overflow: 'hidden'}}>
+                <div style={{flex: 1, display: 'flex', overflow: 'hidden', height: '100%', width: '100%'}}>
                     {/* LEFT - Event Tagging */}
                     <div style={{width: '360px', background: 'rgba(0,0,0,0.2)', borderRight: '1px solid rgba(255,255,255,0.1)', padding: '20px', overflowY: 'auto'}}>
                         <div style={{background: 'rgba(255,255,255,0.08)', borderRadius: '12px', padding: '20px', marginBottom: '20px'}}>
@@ -346,7 +345,7 @@ function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch }) {
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 }
 

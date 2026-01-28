@@ -83,7 +83,7 @@ function Settings({ user, setView, setActivePage, supabase }) {
                         </div>
                         <div style={{fontSize: '14px', color: 'rgba(255,255,255,0.7)'}}>50GB Storage • 3 Users</div>
                     </div>
-                    <button onClick={() => window.open('/#pricing', '_blank')} style={{padding: '12px 24px', background: 'white', border: 'none', color: '#00833E', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', fontFamily: 'inherit'}}>Change Plan</button>
+                    <button onClick={() => setView('pricing')} style={{padding: '12px 24px', background: 'white', border: 'none', color: '#00833E', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', fontFamily: 'inherit'}}>Change Plan</button>
                 </div>
             </div>
         </div>
