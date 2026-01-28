@@ -79,24 +79,29 @@ function VideoAnalysis({ user, supabase, currentMatch, setCurrentMatch }) {
         const file = e.target.files[0];
         if (!file) return;
         
+        console.log('File selected:', file.name);
         setUploading(true);
         try {
             // Create local URL - video stays in browser
             const localUrl = URL.createObjectURL(file);
+            console.log('Local URL created:', localUrl);
             setVideoUrl(localUrl);
             
             // Create temporary match object
-            setCurrentMatch({
+            const tempMatch = {
                 id: Date.now(),
                 title: file.name,
                 home_team: homeTeam,
                 away_team: awayTeam,
                 sport: sport,
                 events: []
-            });
-            
+            };
+            console.log('Setting match and switching to video view');
+            setCurrentMatch(tempMatch);
             setActiveView('video');
+            console.log('activeView set to video, videoUrl:', localUrl);
         } catch (error) {
+            console.error('Upload error:', error);
             alert('Failed to load video: ' + error.message);
         } finally {
             setUploading(false);

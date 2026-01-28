@@ -90,7 +90,7 @@ function Dashboard({ user, setView, setUser, supabase }) {
             {activePage === 'myfiles' && <MyFiles user={user} supabase={supabase} matches={matches} setMatches={setMatches} setActivePage={setActivePage} setCurrentMatch={setCurrentMatch} />}
             {activePage === 'reports' && <Reports user={user} currentMatch={currentMatch} supabase={supabase} setCurrentMatch={setCurrentMatch} />}
             {activePage === 'dashboardview' && <DashboardView user={user} matches={matches} currentMatch={currentMatch} />}
-            {activePage === 'settings' && <Settings user={user} setView={setView} setActivePage={setActivePage} />}
+            {activePage === 'settings' && <Settings user={user} setView={setView} setActivePage={setActivePage} supabase={supabase} />}
         </div>
     );
 }
